@@ -1,0 +1,119 @@
+Welcome to the CS421 grading program. 
+
+This file provides detailed instructions on submitting your MP.  Before diving
+into the details, here is a summary:
+
+   1. Download the tarball from the web page for this MP.
+
+   2. In the un-tarred folder, rename mpXskeleton.ml to mpX.ml, and
+      fill in your solutions in mpX.ml (where X is the MP number).
+
+   3. Run "make" and then "./grader".  This will tell you how many test cases
+      you have passed.  Each time you revise mpX.ml, you need to re-run
+      both make and ./grader.  (You may find it easier to develop your
+      solution using ocaml interactively instead of running it in "batch mode;"
+      see below.)
+
+   4. Before submitting your MP, you will want to add more test cases to
+      the "tests" file, because the tests we provide are not exhaustive.
+
+   5. When you are ready, run "/home/cs421/handin -s mpX". This needs to be
+      done on the ews machines, so the tarball and your solution must be
+      copied there.  handin will copy your solution to the staff folder.  Note
+      that when we grade the MP, we will run it on more test cases than are
+      provided in tests; hence our advice in item 4.
+
+Here are the complete details, including some discussion of what can go wrong:
+
+The files you need to edit in this bundle are:
+
+   - mpX-skeleton.ml (first rename to mpX.ml, then modify)
+   - tests (add new test cases)
+
+No other file should be edited. You will only submit mpX.ml.
+
+To run the grading program:
+
+(In these items, mpX refers to mp1, mp2, mp3, etc)
+
+0.  IMPORTANT:  Make sure your solution defines every function we ask you
+    to define.  For example, suppose we ask you to define the function
+	
+        splat : 'a list -> 'a list list
+		
+    but for whatever reason, you decide you don't want to write the 
+    splat function.  Then please define the splat function as 
+    follows:
+	
+        let splat lst = raise (Failure(""))
+		
+    If you forget to define a function, the grading program will not 
+    compile; you won't receive any credit if the grading program does not 
+    compile. 
+
+    You can use mpX-skeleton.ml file for your convenience. This file
+    includes definitions for all the functions, and is compilable.
+
+    IT IS STRONGLY RECOMMENDED THAT YOU START WORKING FROM THE SKELETON FILE.
+
+1.  Your solution should be called mpX.ml  You may rename your file with
+	
+        mv mp1-skeleton.ml mpX.ml
+
+    WARNING: Makefile copies your mpX.ml as student.ml, and then compiles it. 
+    Do not have any important file named student.ml, or else it will be 
+    overwritten and you will lose it.
+		
+2.  Your file has to reside in this directory.
+
+3.  Execute
+	
+        make
+		
+    to build the grader.  
+    
+    If the grader does not build, make sure you have your solution named 
+    mpX.ml.
+	
+    Secondly, the grading program won't build if your solution's functions
+    do not have the correct types, or if a function is not defined (see #0).
+
+4.  Run
+		
+        ./grader
+		
+    to see how well your solution does.
+
+5.  If you make changes to your solution, be sure to re-run make (step #3).
+    If you forget to re-run make, your changes won't have any effect on the
+    grader program. Do not forget that your solution will be graded using 
+    many more test cases than provided to you. You are encouraged to test your
+    solution against more cases.
+
+6.  The rubric provided is not extensive. You should add many more test cases 
+    to increase your confidence that your implementation is correct. The grading
+    rubric will include many more tests than the one provided to you.
+
+    IMPORTANT: Add new test cases to the "tests" file to increase your confidence
+    about your implementation.
+
+7. When you are satisfied that your solution is correct, run handin.  To do
+   this, you must login to remlnx.ews.uiuc.edu and transer the tarball there,
+   with your solution (called mpX.ml, as noted above). Then execute
+
+      /home/cs421/handin -s mpX
+
+   or, if you are submitting the assignment late,
+
+      /home/cs421/handin -f -s mpX
+
+8. Debugging your program by repeatedly running make and ./grader is a really
+   bad way to proceed.  You will often have auxiliary functions that you will
+   want to test (which the tests file doesn't know about), and you may want to
+   provide really simple test cases as you go.  To run ocaml in normal
+   interactive mode, start it at the command line ("ocaml"), load the provided
+   functions by entering '#load "mpXcommon.cmo";;', and then load your solution
+   file by entering '#use "mpX.ml";;'.  You can enter tests from the top level
+   now, or you can put them into mpX.ml itself (but you should remove them
+   before submitting the MP).
+   
