@@ -8,10 +8,10 @@
 open Mp0common
 
 (* Problem 1 *)
-let a = 0;;  (* You will want to change this. *)
+let a = 17;;  (* You will want to change this. *)
 
 (* Problem 2 *)
-let s = "Something else you will want to change";;
+let s = "Hi there";;
 
 (* Problem 3 *)
 let add_a n =
