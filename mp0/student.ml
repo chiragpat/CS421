@@ -15,7 +15,7 @@ let s = "Hi there";;
 
 (* Problem 3 *)
 let add_a n =
-  raise(Failure "Function not implemented yet.")
+  a + n
 
 (* Problem 4 *)
 let s_paired_with_a_times b =
@@ -23,12 +23,16 @@ let s_paired_with_a_times b =
 
 (* Problem 5 *)
 let greetings name =
-  raise(Failure "Function not implemented yet.")
+  if name = "Sam" then print_string ("Hi " ^ name ^ "!")
+  else print_string ("Hello, " ^ name ^ ". I hope you enjoy CS421.\n")
 
 (* Problem 6 *)
 let greetstring name =
-  raise(Failure "Function not implemented yet.")
+  if name = "Sam" then ("Hi " ^ name ^ "!")
+  else "Hello, " ^ name ^ ". I hope you enjoy CS421.\n"
 
 (*Problem 7 *)
 let sign n =
-  raise(Failure "Function not implemented yet.")
+  if n > 0 then 1
+  else if n < 0 then -1
+  else 0
