@@ -1,0 +1,10 @@
+let test21 = "class C { public int main () { return 0;}}";;
+let test22 = "class C { public int main () { {} return 0;}}";;
+let test23 = "class C { public int main () { if (0) {} return 0;}}";;
+let test24 = "class C { public int main () { if (0) {} else {} return 0;}}";;
+let test25 = "class C { public int main () { break; return 0;}}";;
+let test26 = "class C { public int main () { while (0) {} return 0;}}";;
+let test27 = "class C { public int main () { System.out.println (0); return 0;}}";;
+let test28 = "class C { public int main () { System.out.println (x+y); return 0;}}";;
+let test29 = "class C { public int main () { System.out.println (x+y); return 0;}}";;
+let test30 = "class C { public int main () { a[0] = 1; return 0;}}";;

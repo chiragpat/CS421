@@ -1,0 +1,89 @@
+(**************************************************************************
+ * You can add new test cases by adding new elements to the following lists
+ * Format is:
+ * TEST<X>ARG(<weight>, <function_name>, <arg1>, <arg2>, ..., <argX>)
+ *
+ * <X> is the number of argument that the function being tested takes.
+ **************************************************************************)
+
+open Mp2common
+(* #use "testing.ml";; *)
+
+let exp1 = "a + b - c";;
+let exp2 = "1.0 - 2 < a / b * c";;
+let exp3 = "(true | false) & true & !(a | b) & c";;
+let exp4 = "this.start(a[5], b.length, null)";;
+let exp5 = "a.start(new int[b], new Class())";;
+
+let stmt1 = "if (a) { b = c; } else { c[d] = e; }";;
+let stmt2 = "{ a = true; while (b) { c = false; } }";;
+let stmt3 = "System.out.println(a);";;
+let stmt4 = "a = 0; while (b < 10) { if (c == 9) { break; } else if (d == 5) { continue; } else { System.out.println(e - 10); } }";;
+
+let class1 = "class A { int x; static float y; public int main() { return x + y; } }";;
+let class2 = "class B { public int main() { int x; int y; x = y; return 0; } }";;
+let class3 = "class C { public int main(int a, int b) { b = 0; return a; } }";;
+let class4 = "class D { public int main() { return x; } }";;
+let class5 = "class E extends A { public int main() { return x + y; } }";;
+
+let program1 = class1 ^ " " ^ class2 ^ " " ^ class3 ^ " " ^ class4 ^ " " ^ class5
+let program2 = class1 ^ " " ^ class2 ^ " " ^ class3 ^ " " ^ class5
+
+let parseProgram s = Minijavaparse.program Minijavalex.tokenize (Lexing.from_string s);;
+let parseClass s = Minijavaparse.classdecl Minijavalex.tokenize (Lexing.from_string s);;
+let parseStmt s = Minijavaparse.stmt Minijavalex.tokenize (Lexing.from_string s);;
+let parseExp s = Minijavaparse.expression Minijavalex.tokenize (Lexing.from_string s);;
+
+let rec consEach vhd vtls = match vtls with
+   [] -> []
+ | vtlhd :: vtltl -> (vhd :: vtlhd) :: consEach vhd vtltl;;
+
+let rec sublists vars = match vars with
+   [] -> []
+ | vhd :: vtl -> vtl :: consEach vhd (sublists vtl);;
+
+let p1_sol p vars = Solution.alldeclaredExp vars (parseExp p);;
+let p1_stu p vars = Student.alldeclaredExp vars (parseExp p);;
+
+let p2_sol p vars = Solution.alldeclaredSt vars (parseStmt p);;
+let p2_stu p vars = Student.alldeclaredSt vars (parseStmt p);;
+
+let p3_sol p = Solution.alldeclaredClass (parseClass p);;
+let p3_stu p = Student.alldeclaredClass (parseClass p);;
+
+let rec map f p varsl = match varsl with
+   [] -> []
+ | varhd :: vartl -> (f p varhd) :: (map f p vartl)
+
+let wrapper f p vars = map f p (vars :: sublists vars)
+
+let wrapper2 f p = f p
+
+(* This list is for regular problems *)
+let rubric =
+[
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp1, ["a"; "b"; "c"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp2, ["a"; "b"; "c"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp3, ["a"; "b"; "c"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp4, ["a"; "b"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp5, ["a"; "b"]);
+
+     TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt1, ["a"; "b"; "c"; "d"; "e"]);
+     TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt2, ["a"; "b"; "c"]);
+     TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt3, ["a"]);
+     TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt4, ["a"; "x"; "y"; "z"; "w"]);
+
+     TEST1ARG_TWOFUN(1, (wrapper2 p3_sol), (wrapper2 p3_stu), class1);
+     TEST1ARG_TWOFUN(1, (wrapper2 p3_sol), (wrapper2 p3_stu), class2);
+     TEST1ARG_TWOFUN(1, (wrapper2 p3_sol), (wrapper2 p3_stu), class3);
+     TEST1ARG_TWOFUN(1, (wrapper2 p3_sol), (wrapper2 p3_stu), class4);
+     TEST1ARG_TWOFUN(1, (wrapper2 p3_sol), (wrapper2 p3_stu), class5);
+
+]
+
+
+(* Note: the last entry should not be followed by a semicolon. *)
+
+(* This list is for extra credit problems *)
+let extra_rubric = [
+]

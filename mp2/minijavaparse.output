@@ -1,0 +1,2029 @@
+   0  $accept : %entry% $end
+
+   1  program : classdecls
+
+   2  classdecls : classdecl
+   3             | classdecls classdecl
+
+   4  classdecl : CLASS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE
+   5            | CLASS IDENTIFIER EXTENDS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE
+
+   6  staticvardecls :
+   7                 | staticvardecls staticvardecl
+
+   8  staticvardecl : vardecl
+   9                | STATIC vardecl
+
+  10  vardecls :
+  11           | vardecls vardecl
+
+  12  vardecl : exp_type IDENTIFIER SEMICOLON
+
+  13  methoddecls :
+  14              | methoddecls methoddecl
+
+  15  methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE
+
+  16  params :
+  17         | exp_type IDENTIFIER more_params
+
+  18  more_params :
+  19              | COMMA exp_type IDENTIFIER more_params
+
+  20  exp_type : exp_type LBRACK RBRACK
+  21           | BOOLEAN
+  22           | FLOAT
+  23           | INT
+  24           | IDENTIFIER
+
+  25  stmts0 :
+  26         | stmts0 stmt
+
+  27  stmts1 : stmt
+  28         | stmts1 stmt
+
+  29  stmt : LBRACE stmts0 RBRACE
+  30       | IDENTIFIER EQ expression SEMICOLON
+  31       | IF LPAREN expression RPAREN stmt ELSE stmt
+  32       | IF LPAREN expression RPAREN stmt
+  33       | WHILE LPAREN expression RPAREN stmt
+  34       | IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN SEMICOLON
+  35       | BREAK SEMICOLON
+  36       | CONTINUE SEMICOLON
+  37       | IDENTIFIER LBRACK expression RBRACK EQ expression SEMICOLON
+  38       | SWITCH LPAREN expression RPAREN LBRACE cases DEFAULT COLON stmts1 RBRACE
+
+  39  cases :
+  40        | cases case
+
+  41  case : CASE INTEGER_LITERAL COLON stmts1
+
+  42  expression : expression AND expression
+  43             | expression OR expression
+  44             | expression LT expression
+  45             | expression PLUS expression
+  46             | expression MINUS expression
+  47             | expression MULT expression
+  48             | expression DIV expression
+  49             | expression LBRACK expression RBRACK
+  50             | expression DOT IDENTIFIER
+  51             | expression DOT IDENTIFIER LPAREN args RPAREN
+  52             | INTEGER_LITERAL
+  53             | FLOAT_LITERAL
+  54             | STRING_LITERAL
+  55             | NULL_LITERAL
+  56             | BOOLEAN_LITERAL
+  57             | IDENTIFIER
+  58             | THIS
+  59             | NEW exp_type LBRACK expression RBRACK
+  60             | NEW IDENTIFIER LPAREN RPAREN
+  61             | NOT expression
+  62             | LPAREN expression RPAREN
+
+  63  args :
+  64       | expression more_args
+
+  65  more_args :
+  66            | COMMA expression more_args
+
+  67  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (67)
+
+	CLASS  shift 3
+	.  error
+
+	program  goto 4
+	classdecls  goto 5
+	classdecl  goto 6
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	classdecl : CLASS . IDENTIFIER LBRACE staticvardecls methoddecls RBRACE  (4)
+	classdecl : CLASS . IDENTIFIER EXTENDS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE  (5)
+
+	IDENTIFIER  shift 7
+	.  error
+
+
+state 4
+	%entry% : '\001' program .  (67)
+
+	.  reduce 67
+
+
+state 5
+	program : classdecls .  (1)
+	classdecls : classdecls . classdecl  (3)
+
+	CLASS  shift 3
+	$end  reduce 1
+
+	classdecl  goto 8
+
+
+state 6
+	classdecls : classdecl .  (2)
+
+	.  reduce 2
+
+
+state 7
+	classdecl : CLASS IDENTIFIER . LBRACE staticvardecls methoddecls RBRACE  (4)
+	classdecl : CLASS IDENTIFIER . EXTENDS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE  (5)
+
+	EXTENDS  shift 9
+	LBRACE  shift 10
+	.  error
+
+
+state 8
+	classdecls : classdecls classdecl .  (3)
+
+	.  reduce 3
+
+
+state 9
+	classdecl : CLASS IDENTIFIER EXTENDS . IDENTIFIER LBRACE staticvardecls methoddecls RBRACE  (5)
+
+	IDENTIFIER  shift 11
+	.  error
+
+
+state 10
+	classdecl : CLASS IDENTIFIER LBRACE . staticvardecls methoddecls RBRACE  (4)
+	staticvardecls : .  (6)
+
+	.  reduce 6
+
+	staticvardecls  goto 12
+
+
+state 11
+	classdecl : CLASS IDENTIFIER EXTENDS IDENTIFIER . LBRACE staticvardecls methoddecls RBRACE  (5)
+
+	LBRACE  shift 13
+	.  error
+
+
+state 12
+	classdecl : CLASS IDENTIFIER LBRACE staticvardecls . methoddecls RBRACE  (4)
+	staticvardecls : staticvardecls . staticvardecl  (7)
+	methoddecls : .  (13)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	STATIC  shift 18
+	PUBLIC  reduce 13
+	RBRACE  reduce 13
+
+	methoddecls  goto 19
+	staticvardecl  goto 20
+	vardecl  goto 21
+	exp_type  goto 22
+
+
+state 13
+	classdecl : CLASS IDENTIFIER EXTENDS IDENTIFIER LBRACE . staticvardecls methoddecls RBRACE  (5)
+	staticvardecls : .  (6)
+
+	.  reduce 6
+
+	staticvardecls  goto 23
+
+
+state 14
+	exp_type : IDENTIFIER .  (24)
+
+	.  reduce 24
+
+
+state 15
+	exp_type : BOOLEAN .  (21)
+
+	.  reduce 21
+
+
+state 16
+	exp_type : FLOAT .  (22)
+
+	.  reduce 22
+
+
+state 17
+	exp_type : INT .  (23)
+
+	.  reduce 23
+
+
+state 18
+	staticvardecl : STATIC . vardecl  (9)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	.  error
+
+	vardecl  goto 24
+	exp_type  goto 22
+
+
+state 19
+	classdecl : CLASS IDENTIFIER LBRACE staticvardecls methoddecls . RBRACE  (4)
+	methoddecls : methoddecls . methoddecl  (14)
+
+	PUBLIC  shift 25
+	RBRACE  shift 26
+	.  error
+
+	methoddecl  goto 27
+
+
+state 20
+	staticvardecls : staticvardecls staticvardecl .  (7)
+
+	.  reduce 7
+
+
+state 21
+	staticvardecl : vardecl .  (8)
+
+	.  reduce 8
+
+
+state 22
+	vardecl : exp_type . IDENTIFIER SEMICOLON  (12)
+	exp_type : exp_type . LBRACK RBRACK  (20)
+
+	IDENTIFIER  shift 28
+	LBRACK  shift 29
+	.  error
+
+
+state 23
+	classdecl : CLASS IDENTIFIER EXTENDS IDENTIFIER LBRACE staticvardecls . methoddecls RBRACE  (5)
+	staticvardecls : staticvardecls . staticvardecl  (7)
+	methoddecls : .  (13)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	STATIC  shift 18
+	PUBLIC  reduce 13
+	RBRACE  reduce 13
+
+	methoddecls  goto 30
+	staticvardecl  goto 20
+	vardecl  goto 21
+	exp_type  goto 22
+
+
+state 24
+	staticvardecl : STATIC vardecl .  (9)
+
+	.  reduce 9
+
+
+state 25
+	methoddecl : PUBLIC . exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	.  error
+
+	exp_type  goto 31
+
+
+state 26
+	classdecl : CLASS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE .  (4)
+
+	.  reduce 4
+
+
+state 27
+	methoddecls : methoddecls methoddecl .  (14)
+
+	.  reduce 14
+
+
+state 28
+	vardecl : exp_type IDENTIFIER . SEMICOLON  (12)
+
+	SEMICOLON  shift 32
+	.  error
+
+
+state 29
+	exp_type : exp_type LBRACK . RBRACK  (20)
+
+	RBRACK  shift 33
+	.  error
+
+
+state 30
+	classdecl : CLASS IDENTIFIER EXTENDS IDENTIFIER LBRACE staticvardecls methoddecls . RBRACE  (5)
+	methoddecls : methoddecls . methoddecl  (14)
+
+	PUBLIC  shift 25
+	RBRACE  shift 34
+	.  error
+
+	methoddecl  goto 27
+
+
+state 31
+	methoddecl : PUBLIC exp_type . IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+	exp_type : exp_type . LBRACK RBRACK  (20)
+
+	IDENTIFIER  shift 35
+	LBRACK  shift 29
+	.  error
+
+
+state 32
+	vardecl : exp_type IDENTIFIER SEMICOLON .  (12)
+
+	.  reduce 12
+
+
+state 33
+	exp_type : exp_type LBRACK RBRACK .  (20)
+
+	.  reduce 20
+
+
+state 34
+	classdecl : CLASS IDENTIFIER EXTENDS IDENTIFIER LBRACE staticvardecls methoddecls RBRACE .  (5)
+
+	.  reduce 5
+
+
+state 35
+	methoddecl : PUBLIC exp_type IDENTIFIER . LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+
+	LPAREN  shift 36
+	.  error
+
+
+state 36
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN . params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+	params : .  (16)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	RPAREN  reduce 16
+
+	exp_type  goto 37
+	params  goto 38
+
+
+state 37
+	params : exp_type . IDENTIFIER more_params  (17)
+	exp_type : exp_type . LBRACK RBRACK  (20)
+
+	IDENTIFIER  shift 39
+	LBRACK  shift 29
+	.  error
+
+
+state 38
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params . RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+
+	RPAREN  shift 40
+	.  error
+
+
+state 39
+	params : exp_type IDENTIFIER . more_params  (17)
+	more_params : .  (18)
+
+	COMMA  shift 41
+	RPAREN  reduce 18
+
+	more_params  goto 42
+
+
+state 40
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN . LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+
+	LBRACE  shift 43
+	.  error
+
+
+state 41
+	more_params : COMMA . exp_type IDENTIFIER more_params  (19)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	.  error
+
+	exp_type  goto 44
+
+
+state 42
+	params : exp_type IDENTIFIER more_params .  (17)
+
+	.  reduce 17
+
+
+state 43
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE . vardecls stmts0 RETURN expression SEMICOLON RBRACE  (15)
+	vardecls : .  (10)
+
+	.  reduce 10
+
+	vardecls  goto 45
+
+
+state 44
+	more_params : COMMA exp_type . IDENTIFIER more_params  (19)
+	exp_type : exp_type . LBRACK RBRACK  (20)
+
+	IDENTIFIER  shift 46
+	LBRACK  shift 29
+	.  error
+
+
+45: shift/reduce conflict (shift 14, reduce 25) on IDENTIFIER
+state 45
+	vardecls : vardecls . vardecl  (11)
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls . stmts0 RETURN expression SEMICOLON RBRACE  (15)
+	stmts0 : .  (25)
+
+	IDENTIFIER  shift 14
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	BREAK  reduce 25
+	CONTINUE  reduce 25
+	IF  reduce 25
+	SWITCH  reduce 25
+	RETURN  reduce 25
+	WHILE  reduce 25
+	LBRACE  reduce 25
+
+	vardecl  goto 47
+	exp_type  goto 22
+	stmts0  goto 48
+
+
+state 46
+	more_params : COMMA exp_type IDENTIFIER . more_params  (19)
+	more_params : .  (18)
+
+	COMMA  shift 41
+	RPAREN  reduce 18
+
+	more_params  goto 49
+
+
+state 47
+	vardecls : vardecls vardecl .  (11)
+
+	.  reduce 11
+
+
+state 48
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 . RETURN expression SEMICOLON RBRACE  (15)
+	stmts0 : stmts0 . stmt  (26)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	RETURN  shift 55
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 58
+
+
+state 49
+	more_params : COMMA exp_type IDENTIFIER more_params .  (19)
+
+	.  reduce 19
+
+
+state 50
+	stmt : IDENTIFIER . EQ expression SEMICOLON  (30)
+	stmt : IDENTIFIER . DOT IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN SEMICOLON  (34)
+	stmt : IDENTIFIER . LBRACK expression RBRACK EQ expression SEMICOLON  (37)
+
+	LBRACK  shift 59
+	DOT  shift 60
+	EQ  shift 61
+	.  error
+
+
+state 51
+	stmt : BREAK . SEMICOLON  (35)
+
+	SEMICOLON  shift 62
+	.  error
+
+
+state 52
+	stmt : CONTINUE . SEMICOLON  (36)
+
+	SEMICOLON  shift 63
+	.  error
+
+
+state 53
+	stmt : IF . LPAREN expression RPAREN stmt ELSE stmt  (31)
+	stmt : IF . LPAREN expression RPAREN stmt  (32)
+
+	LPAREN  shift 64
+	.  error
+
+
+state 54
+	stmt : SWITCH . LPAREN expression RPAREN LBRACE cases DEFAULT COLON stmts1 RBRACE  (38)
+
+	LPAREN  shift 65
+	.  error
+
+
+state 55
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN . expression SEMICOLON RBRACE  (15)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 76
+
+
+state 56
+	stmt : WHILE . LPAREN expression RPAREN stmt  (33)
+
+	LPAREN  shift 77
+	.  error
+
+
+state 57
+	stmt : LBRACE . stmts0 RBRACE  (29)
+	stmts0 : .  (25)
+
+	.  reduce 25
+
+	stmts0  goto 78
+
+
+state 58
+	stmts0 : stmts0 stmt .  (26)
+
+	.  reduce 26
+
+
+state 59
+	stmt : IDENTIFIER LBRACK . expression RBRACK EQ expression SEMICOLON  (37)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 79
+
+
+state 60
+	stmt : IDENTIFIER DOT . IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN SEMICOLON  (34)
+
+	IDENTIFIER  shift 80
+	.  error
+
+
+state 61
+	stmt : IDENTIFIER EQ . expression SEMICOLON  (30)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 81
+
+
+state 62
+	stmt : BREAK SEMICOLON .  (35)
+
+	.  reduce 35
+
+
+state 63
+	stmt : CONTINUE SEMICOLON .  (36)
+
+	.  reduce 36
+
+
+state 64
+	stmt : IF LPAREN . expression RPAREN stmt ELSE stmt  (31)
+	stmt : IF LPAREN . expression RPAREN stmt  (32)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 82
+
+
+state 65
+	stmt : SWITCH LPAREN . expression RPAREN LBRACE cases DEFAULT COLON stmts1 RBRACE  (38)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 83
+
+
+state 66
+	expression : INTEGER_LITERAL .  (52)
+
+	.  reduce 52
+
+
+state 67
+	expression : FLOAT_LITERAL .  (53)
+
+	.  reduce 53
+
+
+state 68
+	expression : BOOLEAN_LITERAL .  (56)
+
+	.  reduce 56
+
+
+state 69
+	expression : STRING_LITERAL .  (54)
+
+	.  reduce 54
+
+
+state 70
+	expression : IDENTIFIER .  (57)
+
+	.  reduce 57
+
+
+state 71
+	expression : NEW . exp_type LBRACK expression RBRACK  (59)
+	expression : NEW . IDENTIFIER LPAREN RPAREN  (60)
+
+	IDENTIFIER  shift 84
+	BOOLEAN  shift 15
+	FLOAT  shift 16
+	INT  shift 17
+	.  error
+
+	exp_type  goto 85
+
+
+state 72
+	expression : THIS .  (58)
+
+	.  reduce 58
+
+
+state 73
+	expression : NULL_LITERAL .  (55)
+
+	.  reduce 55
+
+
+state 74
+	expression : LPAREN . expression RPAREN  (62)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 86
+
+
+state 75
+	expression : NOT . expression  (61)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 87
+
+
+state 76
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression . SEMICOLON RBRACE  (15)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	SEMICOLON  shift 89
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 77
+	stmt : WHILE LPAREN . expression RPAREN stmt  (33)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 98
+
+
+state 78
+	stmts0 : stmts0 . stmt  (26)
+	stmt : LBRACE stmts0 . RBRACE  (29)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	RBRACE  shift 99
+	.  error
+
+	stmt  goto 58
+
+
+state 79
+	stmt : IDENTIFIER LBRACK expression . RBRACK EQ expression SEMICOLON  (37)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	RBRACK  shift 100
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 80
+	stmt : IDENTIFIER DOT IDENTIFIER . DOT IDENTIFIER LPAREN expression RPAREN SEMICOLON  (34)
+
+	DOT  shift 101
+	.  error
+
+
+state 81
+	stmt : IDENTIFIER EQ expression . SEMICOLON  (30)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	SEMICOLON  shift 102
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 82
+	stmt : IF LPAREN expression . RPAREN stmt ELSE stmt  (31)
+	stmt : IF LPAREN expression . RPAREN stmt  (32)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	RPAREN  shift 103
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 83
+	stmt : SWITCH LPAREN expression . RPAREN LBRACE cases DEFAULT COLON stmts1 RBRACE  (38)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	RPAREN  shift 104
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 84
+	exp_type : IDENTIFIER .  (24)
+	expression : NEW IDENTIFIER . LPAREN RPAREN  (60)
+
+	LPAREN  shift 105
+	LBRACK  reduce 24
+
+
+state 85
+	exp_type : exp_type . LBRACK RBRACK  (20)
+	expression : NEW exp_type . LBRACK expression RBRACK  (59)
+
+	LBRACK  shift 106
+	.  error
+
+
+state 86
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+	expression : LPAREN expression . RPAREN  (62)
+
+	RPAREN  shift 107
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 87
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+	expression : NOT expression .  (61)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	RPAREN  reduce 61
+	RBRACK  reduce 61
+	SEMICOLON  reduce 61
+	COMMA  reduce 61
+	LT  reduce 61
+	PLUS  reduce 61
+	MINUS  reduce 61
+	MULT  reduce 61
+	DIV  reduce 61
+	AND  reduce 61
+	OR  reduce 61
+
+
+state 88
+	expression : expression LBRACK . expression RBRACK  (49)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 108
+
+
+state 89
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON . RBRACE  (15)
+
+	RBRACE  shift 109
+	.  error
+
+
+state 90
+	expression : expression DOT . IDENTIFIER  (50)
+	expression : expression DOT . IDENTIFIER LPAREN args RPAREN  (51)
+
+	IDENTIFIER  shift 110
+	.  error
+
+
+state 91
+	expression : expression LT . expression  (44)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 111
+
+
+state 92
+	expression : expression PLUS . expression  (45)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 112
+
+
+state 93
+	expression : expression MINUS . expression  (46)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 113
+
+
+state 94
+	expression : expression MULT . expression  (47)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 114
+
+
+state 95
+	expression : expression DIV . expression  (48)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 115
+
+
+state 96
+	expression : expression AND . expression  (42)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 116
+
+
+state 97
+	expression : expression OR . expression  (43)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 117
+
+
+state 98
+	stmt : WHILE LPAREN expression . RPAREN stmt  (33)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	RPAREN  shift 118
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 99
+	stmt : LBRACE stmts0 RBRACE .  (29)
+
+	.  reduce 29
+
+
+state 100
+	stmt : IDENTIFIER LBRACK expression RBRACK . EQ expression SEMICOLON  (37)
+
+	EQ  shift 119
+	.  error
+
+
+state 101
+	stmt : IDENTIFIER DOT IDENTIFIER DOT . IDENTIFIER LPAREN expression RPAREN SEMICOLON  (34)
+
+	IDENTIFIER  shift 120
+	.  error
+
+
+state 102
+	stmt : IDENTIFIER EQ expression SEMICOLON .  (30)
+
+	.  reduce 30
+
+
+state 103
+	stmt : IF LPAREN expression RPAREN . stmt ELSE stmt  (31)
+	stmt : IF LPAREN expression RPAREN . stmt  (32)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 121
+
+
+state 104
+	stmt : SWITCH LPAREN expression RPAREN . LBRACE cases DEFAULT COLON stmts1 RBRACE  (38)
+
+	LBRACE  shift 122
+	.  error
+
+
+state 105
+	expression : NEW IDENTIFIER LPAREN . RPAREN  (60)
+
+	RPAREN  shift 123
+	.  error
+
+
+state 106
+	exp_type : exp_type LBRACK . RBRACK  (20)
+	expression : NEW exp_type LBRACK . expression RBRACK  (59)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	RBRACK  shift 33
+	NOT  shift 75
+	.  error
+
+	expression  goto 124
+
+
+state 107
+	expression : LPAREN expression RPAREN .  (62)
+
+	.  reduce 62
+
+
+state 108
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression LBRACK expression . RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	RBRACK  shift 125
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 109
+	methoddecl : PUBLIC exp_type IDENTIFIER LPAREN params RPAREN LBRACE vardecls stmts0 RETURN expression SEMICOLON RBRACE .  (15)
+
+	.  reduce 15
+
+
+state 110
+	expression : expression DOT IDENTIFIER .  (50)
+	expression : expression DOT IDENTIFIER . LPAREN args RPAREN  (51)
+
+	LPAREN  shift 126
+	RPAREN  reduce 50
+	LBRACK  reduce 50
+	RBRACK  reduce 50
+	SEMICOLON  reduce 50
+	COMMA  reduce 50
+	DOT  reduce 50
+	LT  reduce 50
+	PLUS  reduce 50
+	MINUS  reduce 50
+	MULT  reduce 50
+	DIV  reduce 50
+	AND  reduce 50
+	OR  reduce 50
+
+
+state 111
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression LT expression .  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	RPAREN  reduce 44
+	RBRACK  reduce 44
+	SEMICOLON  reduce 44
+	COMMA  reduce 44
+	AND  reduce 44
+	OR  reduce 44
+
+
+state 112
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression PLUS expression .  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	MULT  shift 94
+	DIV  shift 95
+	RPAREN  reduce 45
+	RBRACK  reduce 45
+	SEMICOLON  reduce 45
+	COMMA  reduce 45
+	LT  reduce 45
+	PLUS  reduce 45
+	MINUS  reduce 45
+	AND  reduce 45
+	OR  reduce 45
+
+
+state 113
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression MINUS expression .  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	MULT  shift 94
+	DIV  shift 95
+	RPAREN  reduce 46
+	RBRACK  reduce 46
+	SEMICOLON  reduce 46
+	COMMA  reduce 46
+	LT  reduce 46
+	PLUS  reduce 46
+	MINUS  reduce 46
+	AND  reduce 46
+	OR  reduce 46
+
+
+state 114
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression MULT expression .  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	RPAREN  reduce 47
+	RBRACK  reduce 47
+	SEMICOLON  reduce 47
+	COMMA  reduce 47
+	LT  reduce 47
+	PLUS  reduce 47
+	MINUS  reduce 47
+	MULT  reduce 47
+	DIV  reduce 47
+	AND  reduce 47
+	OR  reduce 47
+
+
+state 115
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression DIV expression .  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	RPAREN  reduce 48
+	RBRACK  reduce 48
+	SEMICOLON  reduce 48
+	COMMA  reduce 48
+	LT  reduce 48
+	PLUS  reduce 48
+	MINUS  reduce 48
+	MULT  reduce 48
+	DIV  reduce 48
+	AND  reduce 48
+	OR  reduce 48
+
+
+state 116
+	expression : expression . AND expression  (42)
+	expression : expression AND expression .  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	RPAREN  reduce 42
+	RBRACK  reduce 42
+	SEMICOLON  reduce 42
+	COMMA  reduce 42
+	AND  reduce 42
+	OR  reduce 42
+
+
+state 117
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression OR expression .  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	RPAREN  reduce 43
+	RBRACK  reduce 43
+	SEMICOLON  reduce 43
+	COMMA  reduce 43
+	OR  reduce 43
+
+
+state 118
+	stmt : WHILE LPAREN expression RPAREN . stmt  (33)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 127
+
+
+state 119
+	stmt : IDENTIFIER LBRACK expression RBRACK EQ . expression SEMICOLON  (37)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 128
+
+
+state 120
+	stmt : IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER . LPAREN expression RPAREN SEMICOLON  (34)
+
+	LPAREN  shift 129
+	.  error
+
+
+state 121
+	stmt : IF LPAREN expression RPAREN stmt . ELSE stmt  (31)
+	stmt : IF LPAREN expression RPAREN stmt .  (32)
+
+	ELSE  shift 130
+	IDENTIFIER  reduce 32
+	BREAK  reduce 32
+	CASE  reduce 32
+	CONTINUE  reduce 32
+	DEFAULT  reduce 32
+	IF  reduce 32
+	SWITCH  reduce 32
+	RETURN  reduce 32
+	WHILE  reduce 32
+	LBRACE  reduce 32
+	RBRACE  reduce 32
+
+
+state 122
+	stmt : SWITCH LPAREN expression RPAREN LBRACE . cases DEFAULT COLON stmts1 RBRACE  (38)
+	cases : .  (39)
+
+	.  reduce 39
+
+	cases  goto 131
+
+
+state 123
+	expression : NEW IDENTIFIER LPAREN RPAREN .  (60)
+
+	.  reduce 60
+
+
+state 124
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+	expression : NEW exp_type LBRACK expression . RBRACK  (59)
+
+	LBRACK  shift 88
+	RBRACK  shift 132
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 125
+	expression : expression LBRACK expression RBRACK .  (49)
+
+	.  reduce 49
+
+
+state 126
+	expression : expression DOT IDENTIFIER LPAREN . args RPAREN  (51)
+	args : .  (63)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	RPAREN  reduce 63
+
+	expression  goto 133
+	args  goto 134
+
+
+state 127
+	stmt : WHILE LPAREN expression RPAREN stmt .  (33)
+
+	.  reduce 33
+
+
+state 128
+	stmt : IDENTIFIER LBRACK expression RBRACK EQ expression . SEMICOLON  (37)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	LBRACK  shift 88
+	SEMICOLON  shift 135
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 129
+	stmt : IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER LPAREN . expression RPAREN SEMICOLON  (34)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 136
+
+
+state 130
+	stmt : IF LPAREN expression RPAREN stmt ELSE . stmt  (31)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 137
+
+
+state 131
+	stmt : SWITCH LPAREN expression RPAREN LBRACE cases . DEFAULT COLON stmts1 RBRACE  (38)
+	cases : cases . case  (40)
+
+	CASE  shift 138
+	DEFAULT  shift 139
+	.  error
+
+	case  goto 140
+
+
+state 132
+	expression : NEW exp_type LBRACK expression RBRACK .  (59)
+
+	.  reduce 59
+
+
+state 133
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+	args : expression . more_args  (64)
+	more_args : .  (65)
+
+	LBRACK  shift 88
+	COMMA  shift 141
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	RPAREN  reduce 65
+
+	more_args  goto 142
+
+
+state 134
+	expression : expression DOT IDENTIFIER LPAREN args . RPAREN  (51)
+
+	RPAREN  shift 143
+	.  error
+
+
+state 135
+	stmt : IDENTIFIER LBRACK expression RBRACK EQ expression SEMICOLON .  (37)
+
+	.  reduce 37
+
+
+state 136
+	stmt : IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER LPAREN expression . RPAREN SEMICOLON  (34)
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+
+	RPAREN  shift 144
+	LBRACK  shift 88
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	.  error
+
+
+state 137
+	stmt : IF LPAREN expression RPAREN stmt ELSE stmt .  (31)
+
+	.  reduce 31
+
+
+state 138
+	case : CASE . INTEGER_LITERAL COLON stmts1  (41)
+
+	INTEGER_LITERAL  shift 145
+	.  error
+
+
+state 139
+	stmt : SWITCH LPAREN expression RPAREN LBRACE cases DEFAULT . COLON stmts1 RBRACE  (38)
+
+	COLON  shift 146
+	.  error
+
+
+state 140
+	cases : cases case .  (40)
+
+	.  reduce 40
+
+
+state 141
+	more_args : COMMA . expression more_args  (66)
+
+	INTEGER_LITERAL  shift 66
+	FLOAT_LITERAL  shift 67
+	BOOLEAN_LITERAL  shift 68
+	STRING_LITERAL  shift 69
+	IDENTIFIER  shift 70
+	NEW  shift 71
+	THIS  shift 72
+	NULL_LITERAL  shift 73
+	LPAREN  shift 74
+	NOT  shift 75
+	.  error
+
+	expression  goto 147
+
+
+state 142
+	args : expression more_args .  (64)
+
+	.  reduce 64
+
+
+state 143
+	expression : expression DOT IDENTIFIER LPAREN args RPAREN .  (51)
+
+	.  reduce 51
+
+
+state 144
+	stmt : IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN . SEMICOLON  (34)
+
+	SEMICOLON  shift 148
+	.  error
+
+
+state 145
+	case : CASE INTEGER_LITERAL . COLON stmts1  (41)
+
+	COLON  shift 149
+	.  error
+
+
+state 146
+	stmt : SWITCH LPAREN expression RPAREN LBRACE cases DEFAULT COLON . stmts1 RBRACE  (38)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 150
+	stmts1  goto 151
+
+
+state 147
+	expression : expression . AND expression  (42)
+	expression : expression . OR expression  (43)
+	expression : expression . LT expression  (44)
+	expression : expression . PLUS expression  (45)
+	expression : expression . MINUS expression  (46)
+	expression : expression . MULT expression  (47)
+	expression : expression . DIV expression  (48)
+	expression : expression . LBRACK expression RBRACK  (49)
+	expression : expression . DOT IDENTIFIER  (50)
+	expression : expression . DOT IDENTIFIER LPAREN args RPAREN  (51)
+	more_args : COMMA expression . more_args  (66)
+	more_args : .  (65)
+
+	LBRACK  shift 88
+	COMMA  shift 141
+	DOT  shift 90
+	LT  shift 91
+	PLUS  shift 92
+	MINUS  shift 93
+	MULT  shift 94
+	DIV  shift 95
+	AND  shift 96
+	OR  shift 97
+	RPAREN  reduce 65
+
+	more_args  goto 152
+
+
+state 148
+	stmt : IDENTIFIER DOT IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN SEMICOLON .  (34)
+
+	.  reduce 34
+
+
+state 149
+	case : CASE INTEGER_LITERAL COLON . stmts1  (41)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	.  error
+
+	stmt  goto 150
+	stmts1  goto 153
+
+
+state 150
+	stmts1 : stmt .  (27)
+
+	.  reduce 27
+
+
+state 151
+	stmts1 : stmts1 . stmt  (28)
+	stmt : SWITCH LPAREN expression RPAREN LBRACE cases DEFAULT COLON stmts1 . RBRACE  (38)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	RBRACE  shift 154
+	.  error
+
+	stmt  goto 155
+
+
+state 152
+	more_args : COMMA expression more_args .  (66)
+
+	.  reduce 66
+
+
+state 153
+	stmts1 : stmts1 . stmt  (28)
+	case : CASE INTEGER_LITERAL COLON stmts1 .  (41)
+
+	IDENTIFIER  shift 50
+	BREAK  shift 51
+	CONTINUE  shift 52
+	IF  shift 53
+	SWITCH  shift 54
+	WHILE  shift 56
+	LBRACE  shift 57
+	CASE  reduce 41
+	DEFAULT  reduce 41
+
+	stmt  goto 155
+
+
+state 154
+	stmt : SWITCH LPAREN expression RPAREN LBRACE cases DEFAULT COLON stmts1 RBRACE .  (38)
+
+	.  reduce 38
+
+
+state 155
+	stmts1 : stmts1 stmt .  (28)
+
+	.  reduce 28
+
+
+State 45 contains 1 shift/reduce conflict.
+
+
+107 terminals, 22 nonterminals
+68 grammar rules, 156 states
