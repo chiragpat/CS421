@@ -15,20 +15,48 @@ let rubric =
 
      TEST1ARG(1, sort_first_two, [8; 2; 5]);
      TEST1ARG(1, sort_first_two, [3; 7; 4]);
+     TEST1ARG(1, sort_first_two, [3]);
+     TEST1ARG(1, sort_first_two, []);
 
-     TEST1ARG(1, concat_odd, ["How "; "hey"; "are "; "things"; "you?"]) ;
+     TEST1ARG(1, concat_odd, ["How "; "hey"; "are "; "things"; "you?"]);
+     TEST1ARG(1, concat_odd, ["How "; "hey"; "are "; "things"]);
+     TEST1ARG(1, concat_odd, ["How "; "hey"; "are "]);
+     TEST1ARG(1, concat_odd, ["How "; "hey"]);
+     TEST1ARG(1, concat_odd, []) ;
 
      TEST1ARG(1, is_sorted, [1;2;3;4;5;8;9;11]);
      TEST1ARG(1, is_sorted, [1; 2; 3; 4; 4; 5; 8; 9; 11; 11]);
      TEST1ARG(1, is_sorted, [2;3;4;5;7;6;8]);
+     TEST1ARG(1, is_sorted, [3;2]);
+     TEST1ARG(1, is_sorted, []);
+     TEST1ARG(1, is_sorted, [1;2]);
 
      TEST1ARG(1, group_ascending, [1;2;3;3;1;4;5;4;9]);
+     TEST1ARG(1, group_ascending, [10;1;2;70;1;13;5;13;90;100]);
+     TEST1ARG(1, group_ascending, [1;2;3;4;5;6]);
+     TEST1ARG(1, group_ascending, [2;2;3;4;4;1;2;10;1]);
 
      TEST1ARG(1, split_list, [1;2;3;4;5;6]);
+     TEST1ARG(1, split_list, [1;2;3]);
+     TEST1ARG(1, split_list, [1;2]);
+     TEST1ARG(1, split_list, [1]);
+     TEST1ARG(1, split_list, []);
+     TEST1ARG(1, split_list, [1;2;3;4;5;6;7]);
 
      TEST2ARG(1, merge, [1;3;5], [4;5;6]) ;
+     TEST2ARG(1, merge, [], [4;5;6]) ;
+     TEST2ARG(1, merge, [1;3;5], []) ;
+     TEST2ARG(1, merge, [1;3;5;7], [4;5;6]) ;
+     TEST2ARG(1, merge, [1;2;5], [4;5;6]) ;
+     TEST2ARG(1, merge, [1;2;3], [4;5;6]) ;
 
      TEST1ARG(1, mergesort, [1;2;3;2;1;4;5;4;9]);
+     TEST1ARG(1, mergesort, [2;10;2;52;53;21;2;4]);
+     TEST1ARG(1, mergesort, [1;3;4;1;3;10;13;2]);
+     TEST1ARG(1, mergesort, [1;2;4]);
+     TEST1ARG(1, mergesort, [2]);
+     TEST1ARG(1, mergesort, [1;2;3;41;]);
+
 ]
 
 (* This list is for extra credit problems *)
