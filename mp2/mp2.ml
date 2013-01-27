@@ -42,5 +42,28 @@ and alldeclaredStList vars sl = match sl with
         | h::tt -> if alldeclaredSt vars h then alldeclaredStList vars tt
                    else false
 
-let rec alldeclaredClass (Class(c,s,vdl,mdl)) = true ;;
+let rec getvarIds var_decList = match var_decList with
+    | [] -> []
+    | h::tt -> match h with
+                Var (e_t, s) -> [s] @ getvarIds tt
+
+let rec alldeclaredClass (Class(c,s,vdl,mdl)) = 
+    let var_typeList, var_decList = split vdl in
+        let var_idList = getvarIds var_decList in
+            alldeclaredMDL var_idList mdl
+
+and alldeclaredMDL vars mdl = match mdl with
+    | [] -> true
+    | h::tt -> match h with
+                Method (e_t, s, vdl1, vdl2, sl, e) -> 
+                    let complete_vars_list = vars @ (getvarIds vdl1) @ (getvarIds vdl2) in
+                        if alldeclaredMethod h complete_vars_list 
+                        then alldeclaredMDL vars tt
+                        else false
+
+and alldeclaredMethod md vars = match md with
+    Method (e_t, s, vdl1, vdl2, sl, e) ->  
+        if alldeclaredStList vars sl && alldeclaredExp vars e then true
+        else false
+
 
