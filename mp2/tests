@@ -14,6 +14,7 @@ let exp2 = "1.0 - 2 < a / b * c";;
 let exp3 = "(true | false) & true & !(a | b) & c";;
 let exp4 = "this.start(a[5], b.length, null)";;
 let exp5 = "a.start(new int[b], new Class())";;
+let exp6 = "a.b";;
 
 let stmt1 = "if (a) { b = c; } else { c[d] = e; }";;
 let stmt2 = "{ a = true; while (b) { c = false; } }";;
@@ -66,7 +67,10 @@ let rubric =
      TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp2, ["a"; "b"; "c"]);
      TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp3, ["a"; "b"; "c"]);
      TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp4, ["a"; "b"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp4, ["a"]);
      TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp5, ["a"; "b"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp6, ["a"; "b"]);
+     TEST2ARG_TWOFUN(1, (wrapper p1_sol), (wrapper p1_stu), exp6, ["a"]);
 
      TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt1, ["a"; "b"; "c"; "d"; "e"]);
      TEST2ARG_TWOFUN(1, (wrapper p2_sol), (wrapper p2_stu), stmt2, ["a"; "b"; "c"]);
