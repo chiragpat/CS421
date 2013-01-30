@@ -33,6 +33,7 @@ let rubric = [
   TEST1ARG(1, get_all_tokens, "4");
   TEST1ARG(1, get_all_tokens, "3428");
   TEST1ARG(1, get_all_tokens, "4 3 343 232");
+  TEST1ARG(1, get_all_tokens, "4 3 343 -232");
 
   (* Problem 3 *)
   TEST1ARG(1, get_all_tokens, "343.4");
