@@ -12,58 +12,57 @@ let label_of_state st = match st with
 | _      -> Error
 
 let transition ch st = match st with
-| Start -> (match ch with
-            | '{'        -> Lbracket
-            | '}'        -> Rbracket
-            | ' ' | '\n' -> Whitespace
-            | '/'        -> Slash 
-            | 'a'..'z'   -> Ident   
-            | '0'..'9'   -> Int
-            | _          -> BadChar)
+| Start        -> (match ch with
+                  | '{'        -> Lbracket
+                  | '}'        -> Rbracket
+                  | ' ' | '\n' -> Whitespace
+                  | '/'        -> Slash 
+                  | 'a'..'z'   -> Ident   
+                  | '0'..'9'   -> Int
+                  | _          -> BadChar)
 
-| Whitespace -> (match ch with
-                | ' ' | '\n' -> Whitespace
-                | _          -> NoMove)
+| Whitespace   -> (match ch with
+                  | ' ' | '\n' -> Whitespace
+                  | _          -> NoMove)
 
-| Ident      -> (match ch with
-                | 'a'..'z' | '0'..'9'  -> Ident
-                | _                    -> NoMove)
+| Ident        -> (match ch with
+                  | 'a'..'z' 
+                  | '0'..'9'   -> Ident
+                  | _          -> NoMove)
 
-| Int   -> (match ch with
-              | '0'..'9' -> Int
-              | '.'      -> IntDot
-              | _        -> NoMove)
+| Int          -> (match ch with
+                  | '0'..'9'   -> Int
+                  | '.'        -> IntDot
+                  | _          -> NoMove)
 
-| IntDot -> (match ch with
-              | '0'..'9' -> Float
-              | _        -> NoMove)
-| Float  -> (match ch with
-              | '0'..'9' -> Float
-              | _        -> NoMove)
+| IntDot       -> (match ch with
+                  | '0'..'9'   -> Float
+                  | _          -> NoMove)
 
-| Slash  -> (match ch with
-              | '/'      -> CPPcomment
-              | '*'      -> Ccomment
-              | _        -> NoMove)
+| Float        -> (match ch with
+                  | '0'..'9'   -> Float
+                  | _          -> NoMove)
 
-| CPPcomment -> (match ch with
-                  | '\n' -> CPPcommentEnd
-                  | _    -> CPPcomment)
+| Slash        -> (match ch with
+                  | '/'        -> CPPcomment
+                  | '*'        -> Ccomment
+                  | _          -> NoMove)
 
-| Ccomment -> (match ch with
-                | '*' -> CcommentStar
-                | _   -> Ccomment )
+| CPPcomment   -> (match ch with
+                  | '\n'       -> CPPcommentEnd
+                  | _          -> CPPcomment)
+
+| Ccomment     -> (match ch with
+                  | '*'        -> CcommentStar
+                  | _          -> Ccomment )
 
 | CcommentStar -> (match ch with
-                   | '*' -> CcommentStar
-                   | '/' -> CcommentEnd
-                   | _   -> Ccomment )
+                  | '*'        -> CcommentStar
+                  | '/'        -> CcommentEnd
+                  | _          -> Ccomment )
 
 | Lbracket | Rbracket | CPPcommentEnd 
-| BadChar  | CcommentEnd -> NoMove
-
-
-| _     -> st
+| BadChar  | CcommentEnd | NoMove -> NoMove 
    
 let action st tok = match label_of_state st with
   Discard -> []
@@ -76,18 +75,6 @@ let action st tok = match label_of_state st with
             | Float    -> [ Floatlit(tok) ]
             | Slash    -> [ Divide ]
             | _   -> [])
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

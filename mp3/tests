@@ -31,6 +31,9 @@ let rubric = [
   TEST1ARG(1, get_all_tokens, "/* what up */   */");
   TEST1ARG(1, get_all_tokens, "/* what /* up   */");
   TEST1ARG(1, get_all_tokens, "3 { /* what /* up   */ } x");
+  TEST1ARG(1, get_all_tokens, "Abc afasf + 1.0/12");
+  TEST1ARG(1, get_all_tokens, "/* what's up a-b'Asa */ asa 123;");
+  TEST1ARG(1, get_all_tokens, "/* what's up a-b'*Asa ****/ asa 123;");
 ]
 
 let extra_rubric = [
