@@ -1,0 +1,90 @@
+open Minijavaast
+open Mp6common
+let rubric_version = "1.0"
+let rubric_title = "CS421 Spring 2013 MP6"
+
+(**************************************************************************
+ * You can add new test cases by adding new elements to the following lists
+ * Format is:
+ * TESTRUN(<weight>, <f_label>, <solution_f>, <student_f>, <program>,
+ *   <prog_args>)
+ * TESTFUN(<weight>, <f_name>, <args>)
+ *
+ * <args> should be a space-separated list NOT surrounded by parentheses,
+ *   and is simply appended to the end of <f_name>
+ * <prog_args> should be of type (Minijavaast.exp list).
+ **************************************************************************)
+
+(* Test cases should go in this list. 
+ * The first element of the pair is the weight of the case,
+ * and the second is the string to be given to the parser.
+ *)
+
+let test f =
+  try (Some (f ()), None)
+  with
+      TypeError m -> (None, Some (TypeError ""))
+    | RuntimeError m -> (None, Some (RuntimeError ""))
+    | NotImplemented m -> (None, Some (NotImplemented ""))
+    | (ex:exn) -> (None, Some ex)
+
+let testRun f s args =
+  test (fun () -> (f (Minijavaparse.program Minijavalex.tokenize (Lexing.from_string s)) args))
+and progDesc n s = let s = n ^ ": " ^ s in
+  if String.length s > 135 then (String.sub s 0 60) ^ "..." else s
+
+let testRun_stu = testRun Student.run_with_args
+and testRun_sol = testRun Solution.run_with_args;;
+
+let sigma1 = [("x", IntV 4); ("y", StringV "abc"); ("z", BoolV true)]
+let fact = Program
+   [Class ("Main", "", [],
+     [Method (IntType, "main",
+       [Var (IntType, "n")],
+       [Var (IntType, "r")],
+       [If
+         (Operation (Id "n", Equal,
+           Integer 0),
+         Block
+          [Assignment ("r", Integer 1)],
+         Block
+          [Assignment ("r",
+            Operation (Id "n",
+             Multiplication,
+             MethodCall (Id "main", "main",
+              [Operation (Id "n", Minus,
+                Integer 1)])))])],
+       Id "r")])];;
+
+let rubric = [
+  TESTFUN(1, applyOp, Plus (IntV 1) (BoolV true))
+; TESTFUN(1, applyOp, Plus (NullV) (StringV "1"))
+; TESTFUN(1, applyOp, Minus (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Minus (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Multiplication (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Division (IntV 2) (IntV 1))
+; TESTFUN(1, applyOp, Division (IntV 0) (IntV 2))
+; TESTFUN(1, applyOp, LessThan (IntV 2) (IntV 0))
+; TESTFUN(1, applyOp, Equal (NullV) (NullV))
+] @
+let nop = "class Main { public int main() { return null; } }"
+and math = "class Main { public int main() { return 6 * 2 + 4 / 2 - 9; } }"
+and hello = "class Main { public int main() { int s; s = \"Hello World\"; return s; } }"
+and fact = "class Main { public int main(int n) { int r; if (n == 0) { r = 1; } else { r = n * main.main(n - 1); } return r; } }"
+and odd1 = "class Main { public boolean main(int n) { int m; m = n / 2; return m < (n + 1) / 2; } }"
+and odd2 = "class Main { public boolean main(int n) { return Main.isOdd(n); } public boolean isOdd(int n)  { boolean b; if (n == 0) b = false; else b = Main.isEven(n - 1); return b; } public boolean isEven(int n) { boolean b; if (n == 0) b = true; else b = Main.isOdd(n - 1); return b; } }"
+and sum = "class Main { public int main(int n) { return Main.sum(n, \"\"); } public int sum(int n, int s) { int r; if (!(s == \"\")) s = s + \", \"; r = s + n; if (n == 0) { } else r = r + Main.sum(n - 1, \"\"); return r; } }"
+and fib = "class Main { public int main(int m, int n, int c, int a, boolean b) { int r; if (c == 0) r = a; else { if (b) { if (!(a == \"\")) a = a + \", \"; a = a + n; } r = Main.main(n, n + m, c - 1, a, !b); } return r; } }"
+in List.map (fun (w,n,s,a) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu, s, a)) 
+[
+2, "nop", nop, [];
+4, "math", math, [];
+4, "hello-world", hello, [];
+2, "odd-1", odd1, [Integer(1)];
+4, "odd-2", odd2, [Integer(1)];
+4, "fact-2", fact, [Integer(5)];
+6, "sum", sum, [Integer(5)];
+6, "fib", fib, [Integer(0); Integer(1); Integer(10); String(""); False]
+]
+
+and extra_rubric = []
