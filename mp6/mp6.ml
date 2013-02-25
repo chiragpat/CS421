@@ -116,8 +116,13 @@ let rec eval (e:exp) (sigma:state) (prog:program) : value =
                                    | _ -> raise( TypeError "Incorrect type for And"))
 
      | Operation(e11, bop, e22) -> applyOp bop (eval e11 sigma prog) (eval e22 sigma prog)
-     | MethodCall(_, id, el) -> let Method(_, _, arglis, locallis, sl, retexp) = getMethod id prog
-                                in evalMethodCall sl retexp ((zip (varnames arglis) (evallist el sigma prog))@(zipscalar (varnames locallis) NullV)) prog 
+     | MethodCall(_, id, el) -> 
+        let Method(_, _, arglis, locallis, sl, retexp) = getMethod id prog
+        in evalMethodCall sl 
+                          retexp 
+                          ((zip (varnames arglis) (evallist el sigma prog))
+                            @(zipscalar (varnames locallis) NullV)) 
+                          prog 
      | _ -> raise (NotImplemented "eval")
 
 and evallist (el:exp list) (sigma:state) (prog:program) : value list =
