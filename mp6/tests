@@ -75,6 +75,8 @@ and odd1 = "class Main { public boolean main(int n) { int m; m = n / 2; return m
 and odd2 = "class Main { public boolean main(int n) { return Main.isOdd(n); } public boolean isOdd(int n)  { boolean b; if (n == 0) b = false; else b = Main.isEven(n - 1); return b; } public boolean isEven(int n) { boolean b; if (n == 0) b = true; else b = Main.isOdd(n - 1); return b; } }"
 and sum = "class Main { public int main(int n) { return Main.sum(n, \"\"); } public int sum(int n, int s) { int r; if (!(s == \"\")) s = s + \", \"; r = s + n; if (n == 0) { } else r = r + Main.sum(n - 1, \"\"); return r; } }"
 and fib = "class Main { public int main(int m, int n, int c, int a, boolean b) { int r; if (c == 0) r = a; else { if (b) { if (!(a == \"\")) a = a + \", \"; a = a + n; } r = Main.main(n, n + m, c - 1, a, !b); } return r; } }"
+and or1 = "class Main { public int main(int m) { return (m == 0) | m}"
+and or2 = "class Main { public int main(int m, int n) { return m | n}"
 in List.map (fun (w,n,s,a) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu, s, a)) 
 [
 2, "nop", nop, [];
@@ -84,7 +86,11 @@ in List.map (fun (w,n,s,a) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu,
 4, "odd-2", odd2, [Integer(1)];
 4, "fact-2", fact, [Integer(5)];
 6, "sum", sum, [Integer(5)];
-6, "fib", fib, [Integer(0); Integer(1); Integer(10); String(""); False]
+6, "fib", fib, [Integer(0); Integer(1); Integer(10); String(""); False];
+2, "or-1", or1, [Integer(0)];
+2, "or-1", or1, [Integer(1)];
+2, "or-2", or2, [Integer(1); True];
+2, "or-2", or2, [False; String("abcd")]
 ]
 
 and extra_rubric = []
