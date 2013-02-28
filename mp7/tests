@@ -1,0 +1,443 @@
+open Minijavaast
+open Mp7common
+let rubric_version = "1.0"
+let rubric_title = "CS421 Spring 2012 MP6"
+
+(**************************************************************************
+ * You can add new test cases by adding new elements to the following lists
+ * Format is:
+ * TESTRUN(<weight>, <f_label>, <solution_f>, <student_f>, <program>,
+ *   <prog_args>)
+ * TESTFUN(<weight>, <f_name>, <args>)
+ *
+ * <args> should be a space-separated list NOT surrounded by parentheses,
+ *   and is simply appended to the end of <f_name>
+ * <prog_args> should be of type (Minijavaast.exp list).
+ **************************************************************************)
+
+(* Test cases should go in this list. 
+ * The first element of the pair is the weight of the case,
+ * and the second is the string to be given to the parser.
+ *)
+
+let test f =
+  try (Some (f ()), None)
+  with
+      TypeError m -> (None, Some (TypeError ""))
+    | RuntimeError m -> (None, Some (RuntimeError ""))
+    | NotImplemented m -> (None, Some (NotImplemented ""))
+    | (ex:exn) -> (None, Some ex)
+
+let testRun f s args =
+  test (fun () -> (f (Minijavaparse.program Minijavalex.tokenize (Lexing.from_string s)) args))
+and progDesc n s = let s = n ^ ": " ^ s in
+  if String.length s > 135 then (String.sub s 0 60) ^ "..." else s
+
+let testRun_stu = testRun Student.run_with_args
+and testRun_sol = testRun Solution.run_with_args;;
+
+let sigma1 = [("x", IntV 4); ("y", StringV "abc"); ("z", BoolV true); ("mycar", Location 0)]
+let store1 = [Object("Main",[])]
+let fact = Program
+   [Class ("Main", "", [],
+     [Method (IntType, "main",
+       [Var (IntType, "n")],
+       [Var (IntType, "r")],
+       [If
+         (Operation (Id "n", Equal,
+           Integer 0),
+         Block
+          [Assignment ("r", Integer 1)],
+         Block
+          [Assignment ("r",
+            Operation (Id "n",
+             Multiplication,
+             MethodCall (Id "this", "main",
+              [Operation (Id "n", Minus,
+                Integer 1)])))])],
+       Id "r")])];;
+
+let rubric = [
+  TESTFUN(1, applyOp, Plus (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Plus (StringV "1") (StringV "2"))
+; TESTFUN(1, applyOp, Plus (StringV "1") (IntV 2))
+; TESTFUN(1, applyOp, Plus (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Plus (StringV "1") (BoolV true))
+; TESTFUN(1, applyOp, Plus (StringV "1") (BoolV true))
+; TESTFUN(1, applyOp, Plus (BoolV true) (StringV "1"))
+; TESTFUN(1, applyOp, Plus (IntV 1) (BoolV true))
+; TESTFUN(1, applyOp, Plus (IntV 1) (NullV))
+; TESTFUN(1, applyOp, Plus (NullV) (StringV "1"))
+; TESTFUN(1, applyOp, Minus (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Minus (IntV 0) (IntV 2))
+; TESTFUN(1, applyOp, Minus (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Multiplication (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Multiplication (IntV 0) (IntV 2))
+; TESTFUN(1, applyOp, Multiplication (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Division (IntV 2) (IntV 1))
+; TESTFUN(1, applyOp, Division (IntV 0) (IntV 2))
+; TESTFUN(1, applyOp, Division (IntV 2) (IntV 0))
+; TESTFUN(1, applyOp, Division (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, LessThan (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, LessThan (IntV 2) (IntV 0))
+; TESTFUN(1, applyOp, LessThan (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Equal (IntV 1) (IntV 2))
+; TESTFUN(1, applyOp, Equal (StringV "1") (StringV "2"))
+; TESTFUN(1, applyOp, Equal (StringV "abc") (StringV "abc"))
+; TESTFUN(1, applyOp, Equal (StringV "1") (IntV 2))
+; TESTFUN(1, applyOp, Equal (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, Equal (StringV "1") (BoolV true))
+; TESTFUN(1, applyOp, Equal (StringV "1") (BoolV true))
+; TESTFUN(1, applyOp, Equal (BoolV true) (BoolV false))
+; TESTFUN(1, applyOp, Equal (BoolV false) (BoolV false))
+; TESTFUN(1, applyOp, Equal (BoolV true) (StringV "1"))
+; TESTFUN(1, applyOp, Equal (IntV 1) (BoolV true))
+; TESTFUN(1, applyOp, Equal (IntV 1) (NullV))
+; TESTFUN(1, applyOp, Equal (NullV) (StringV "1"))
+; TESTFUN(1, applyOp, Equal (NullV) (NullV))
+; TESTFUN(1, eval, (Id "x") (sigma1,store1) fact)
+; TESTFUN(1, eval, (Operation (Id "x", Plus, Id "y")) (sigma1,store1) fact)
+; TESTFUN(1, eval, (Operation (Id "x", LessThan, Id "y")) (sigma1,store1) fact)
+; TESTFUN(1, eval, (Operation (Id "z", And, False)) (sigma1,store1) fact)
+; TESTFUN(2, eval, (MethodCall (Id "mycar", "main", [Integer 4])) (sigma1,store1) fact)
+] @
+let nop = "class Main { public int main() { return null; } }"
+and math = "class Main { public int main() { return 6 * 2 + 4 / 2 - 9; } }"
+and hello = "class Main { public int main() { int s; s = \"Hello World\"; return s; } }"
+and fact = "class Main { public int main(int n) { int r; if (n == 0) { r = 1; } else { r = n * this.main(n - 1); } return r; } }"
+and odd1 = "class Main { public boolean main(int n) { int m; m = n / 2; return m < (n + 1) / 2; } }"
+and odd2 = "class Main { public boolean main(int n) { return this.isOdd(n); } public boolean isOdd(int n)  { boolean b; if (n == 0) b = false; else b = this.isEven(n - 1); return b; } public boolean isEven(int n) { boolean b; if (n == 0) b = true; else b = this.isOdd(n - 1); return b; } }"
+and sum = "class Main { public int main(int n) { return this.sum(n, \"\"); } public int sum(int n, int s) { int r; if (!(s == \"\")) s = s + \", \"; r = s + n; if (n == 0) { } else r = r + this.sum(n - 1, \"\"); return r; } }"
+and fib = "class Main { public int main(int m, int n, int c, int a, boolean b) { int r; if (c == 0) r = a; else { if (b) { if (!(a == \"\")) a = a + \", \"; a = a + n; } r = this.main(n, n + m, c - 1, a, !b); } return r; } }"
+and listnode = "class Main { \
+   public int main(int n) {\
+      int x;\
+      int y;\
+      x = new ListNode();\
+      y = x.setval(n);\
+      return x.getval();\
+   }\
+}\
+\
+class ListNode {\
+   int val;\
+   public int setval (int v) {\
+      val = v;\
+      return v;\
+   }\
+   public int getval () {\
+      return val;\
+   }\
+}"
+and listoftwo = "class Main { \
+   public int main(int n) {\
+      int x;\
+      int y;\
+      int z;\
+      x = new ListNode();\
+      z = x.setval(n);\
+      y = new ListNode();\
+      z = y.setval(n+1);\
+      y = x.setnext(y);\
+      return x.getnext().getval();\
+   }\
+}\
+\
+class ListNode {\
+   int val;\
+   int next;\
+   public int getnext() {\
+     return next;\
+   }\
+   public int setnext(int n) {\
+      next = n;\
+      return n;\
+   }\
+   public int setval (int v) {\
+      val = v;\
+      return v;\
+   }\
+   public int getval () {\
+      return val;\
+   }\
+}"
+and recursedlist = "class Main { \
+   public int main(int n) {\
+      int x;\
+      int z;\
+      int temp;\
+      int temp2;\
+      z = new LinkedList();\
+      x = new ListNode();\
+      temp2 = x.setval(n);\
+      temp = z.add(x);\
+      x = new ListNode();\
+      temp2 = x.setval(n-1);\
+      temp = z.add(x);\
+      x = new ListNode();\
+      temp2 = x.setval(n-2);\
+      temp = z.add(x);\
+      return z.getElement(2).getval();\
+   }\
+}\
+\
+class LinkedList {\
+   int first;\
+   int last;\
+   public int getFirst() {\
+     return first;\
+   }\
+   public int getLast() {\
+     return last;\
+   }\
+   public int add(int newNode) {\
+     int temp;\
+     if (first == null) {\
+        first = newNode;\
+        last = newNode;\
+     }\
+     else {\
+        temp = last.setnext(newNode);\
+        last = newNode;\
+     }\
+     return newNode;\
+   }\
+   public int getRecursive(int current, int index) {\
+        int temp;\
+        if (index == 0) {\
+                temp = current;\
+        }\
+        else {\
+                temp = this.getRecursive(current.getnext(),index-1);\
+        }\
+        return temp;\
+   }\
+   public int getElement(int index) {\
+     return this.getRecursive(first,index);\
+   }\
+}\
+\
+class ListNode {\
+   int val;\
+   int next;\
+   public int getnext() {\
+     return next;\
+   }\
+   public int setnext(int n) {\
+      next = n;\
+      return n;\
+   }\
+   public int setval (int v) {\
+      val = v;\
+      return v;\
+   }\
+   public int getval () {\
+      return val;\
+   }\
+}"
+and bst = "class Main { \
+   public int main(int n) {\
+      int x;\
+      int z;\
+      int temp;\
+      x = new TreeNode();\
+      z = x.setval(n);\
+      temp = x.add(4);\
+      temp = x.add(8);\
+      return x.traverseInfix();\
+   }\
+}\
+class TreeNode {\
+   int val;\
+   int left;\
+   int right;\
+   public int setval (int v) {\
+      val = v;\
+      return v;\
+   }\
+   public int getval () {\
+      return val;\
+   }\
+   public int traverseInfix () {\
+        int temp;\
+        temp = \"\";\
+        if (!(left == null)) {\
+                temp = temp + left.traverseInfix();\
+        }\
+        temp = (temp + val);\
+        if (!(right == null)) {\
+                temp = temp + right.traverseInfix();\
+        }\
+        return temp;\
+   }\
+   public int add(int num) {\
+        int temp;\
+        int temp1;\
+        if (val == num ) {\
+                temp = null;\
+        }\
+        else if (val < num) {\
+                if(right==null) {\
+                        temp = new TreeNode();\
+                        temp1 = temp.setval(num);\
+                        right = temp;\
+                }\
+                else {\
+                        temp = right.add(num);\
+                }\
+        }\
+        else {\
+                if(left==null) {\
+                        temp = new TreeNode();\
+                        temp1 = temp.setval(num);\
+                        left = temp;\
+                }\
+                else {\
+                        temp = left.add(num);\
+                }\
+        }\
+        return temp;\
+   }\
+}"
+and proginh = "class Main { \
+   public int main() {\
+      int x;\
+      int y;\
+      x = new B();\
+      y = new C();\
+      return \"\" + x.f() + \",\" + y.f();\
+   }\
+}\
+\
+class B {\
+   public int f () {\
+      return this.g();\
+   }\
+   public int g () {\
+      return \"B\";\
+   }\
+}\
+\
+class C extends B {\
+   public int g () {\
+      return \"C\";\
+   }\
+}"
+and proginh2 = "class Main { \
+   public int main() {\
+      int x;\
+      int y;\
+      int temp;\
+      x = new B();\
+      y = new C();\
+      temp = x.r(); temp = y.r();\
+      return \"\" + x.s() + \",\" + y.s();\
+   }\
+}\
+\
+class B { int aB; public int r() { aB = this; return 0;} public int s() { return aB.g(); } \
+public int g() { return \"B\"; } }\
+class C extends B { public int g() { return \"C\"; } }"
+and proginh3 = "class Main { \
+   public int main() {\
+      int x;\
+      int y;\
+      int temp;\
+      int result;\
+      result = \"\";\
+      x = new B();\
+      y = new C();\
+      temp = x.q(x); result = result + x.s();\
+      temp = x.q(y); result = result + x.s();\
+      temp = y.q(y); result = result + y.s();\
+      temp = y.q(x); result = result + y.s();\
+      return result;\
+   }\
+}\
+\
+class B { int aB; public int q(int x) { aB = x; return 0;} public int s() { return aB.g(); } \
+public int g() { return \"B\"; } }\
+class C extends B { public int g() { return \"C\"; } }"
+and proginh4 = "class Main { \
+   public int main() {\
+      int x;\
+      int y;\
+      int temp;\
+      int result;\
+      x = new B();\
+      y = new C();\
+      result = \"\";\
+      temp = y.h(y); result = result + y.f();\
+      temp = y.h(x); result = result + y.f();\
+      return result;\
+   }\
+}\
+\
+class B { public int f() { return this.g(); } public int g() { return \"B\"; } }\
+class C extends B { int x; public int g() { return \"C\"; } public int f() { return x.g(); }\
+public int h(int y) { x = y; return \"\";}}"
+and documentinh = "class Main { \
+   public int main() {\
+      int x;\
+      int y;\
+      x = new PDFDocument();\
+      y = new Word97Document();\
+      return \"\" + x.printTitle() + \", \" + y.printTitle();\
+   }\
+}\
+\
+class Document {\
+   public int getAuthor () {\
+      return \"Author Name\";\
+   }\
+   public int getType () {\
+      return \"Document\";\
+   }\
+   public int printTitle () {\
+      return this.getType() + \" by \" + this.getAuthor();\
+   }\
+}\
+\
+class WordDocument extends Document {\
+   public int getType () {\
+      return \"Word\";\
+   }\
+   public int printTitle () {\
+      return this.getAuthor() + \": \" + this.getType();\
+   }\
+}\
+class Word97Document extends WordDocument {\
+   public int getType () {\
+      return \"Word97\";\
+   }\
+}\
+class PDFDocument extends Document {\
+   public int getType () {\
+      return \"PDF\";\
+   }\
+}"
+in List.map (fun (w,n,s,a) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu, s, a)) 
+[
+2, "nop", nop, [];
+4, "math", math, [];
+4, "hello-world", hello, [];
+2, "odd-1-1", odd1, [Integer(1)];
+2, "odd-1-2", odd1, [Integer(2)];
+4, "odd-2-1", odd2, [Integer(1)];
+4, "odd-2-2", odd2, [Integer(4)];
+2, "fact-1", fact, [Integer(0)];
+4, "fact-2", fact, [Integer(5)];
+6, "sum", sum, [Integer(5)];
+6, "fib", fib, [Integer(0); Integer(1); Integer(10); String(""); False];
+2, "list-one-node", listnode, [Integer(3)];
+4, "list-two-nodes", listoftwo, [Integer(5)];
+6, "list-recurse", recursedlist, [Integer(7)];
+6, "bst-infix", bst, [Integer(6)];
+6, "inherit-1", proginh,[];
+6, "inherit-2", proginh2,[];
+6, "inherit-3", proginh3,[];
+6, "inherit-4", proginh4,[];
+6, "inherit-doc", documentinh,[]
+]
+
+and extra_rubric = []
