@@ -69,15 +69,26 @@ let getClass (c:id) (Program classlis) : class_decl =
 
 (* Note: modify the following two helper functions to support inheritance *)
 
-let getMethod (id:id) (c:id) (prog:program) : method_decl =
-     getMethodInClass id (getClass c prog)
+let rec getMethod (id:id) (c:id) (prog:program) : method_decl =
+     match c with 
+     | "" -> raise(TypeError ("No such method: "^id))
+     | _ -> let Class(c', inhert_c, locallis, methlis) = getClass c prog
+            in (
+              try
+                getMethodInClass id (Class(c', inhert_c, locallis, methlis))
+              with
+              | TypeError(s) -> getMethod id  inhert_c prog
+              | e -> raise e
+            )
 
-let fields (c:id) (prog:program) : string list =
+let rec fields (c:id) (prog:program) : string list =
   let rec aux flds = match flds with
       [] -> []
     | (_, Var(_,id))::t -> id :: aux t
-  in let Class(_,_,flds,_) = getClass c prog
-     in aux flds
+  in (match c with 
+    | "" -> []
+    | _ -> (let Class(_,inhert_c,flds,_) = getClass c prog
+            in aux flds@fields inhert_c prog))
 
 
 (* START HERE *)
@@ -89,9 +100,9 @@ match bop with
             | IntV(i1), IntV(i2) -> IntV(i1 + i2)
             | StringV(s11), StringV(s22) -> StringV(s11 ^ s22)
             | StringV(s1), IntV(_)
-            | StringV(s1), BoolV(_) -> StringV(s1 ^ string_of_stackvalue v2)
+            | StringV(s1), BoolV(_) -> StringV(s1 ^ string_of_stackval v2)
             | IntV(_), StringV(s1') 
-            | BoolV(_),  StringV(s1') -> StringV((string_of_stackvalue v1) ^ s1')
+            | BoolV(_),  StringV(s1') -> StringV((string_of_stackval v1) ^ s1')
             | _ -> raise (TypeError "Incorrect types for the Plus operator "))
 
   | Minus -> (match v1, v2 with
@@ -119,29 +130,108 @@ match bop with
              | NullV, _ | _, NullV -> BoolV(false)
              | _ -> raise(TypeError "Incorrect types for the Equal operator"))
 
-  | _ -> raise (NotImplemented "applyOp")
+  | _ -> raise (RuntimeError "Operator not supported")
 
 (* Main interpreter code *)
 
 let rec eval (e:exp) ((env,sto) as sigma:state) (prog:program)
        : stackvalue * store =
    match e with
-       Integer i -> (IntV i, sto)
+     | Integer i -> (IntV i, sto)
+     | True -> (BoolV true, sto)
+     | False -> (BoolV false, sto)
+     | Null -> (NullV, sto)
+     | String s -> (StringV s, sto)
+     
+     | Id varname -> if binds varname env then (fetch varname env, sto)
+                     else (
+                        let Location(loc) = (fetch "this" env)
+                        in let Object(id, env2) = storefetch sto loc
+                        in if binds varname env2 then (fetch varname env2, sto)
+                           else raise (TypeError("No variable with name: " ^ varname))  
+                     )
+     | This -> (fetch "this" env, sto)
+     
+     | NewId(id) -> let c_fields = fields id prog
+                    in (Location(length sto), 
+                        extend sto (Object( id, zipscalar c_fields NullV ))) 
+
+     | Not(e1) -> (match eval e1 (env, sto) prog with
+                  | BoolV(b), newsto -> (BoolV(not b), newsto)
+                  | _ -> raise (TypeError "Wrong type for Not"))
+
+     | Operation(e1, Or, e2) -> (match eval e1 (env, sto) prog with
+                                 | BoolV(b), newsto -> if b then (BoolV(true), newsto)
+                                                       else eval e2 (env, newsto) prog
+                                 | _ -> raise (TypeError "Wrong type for Or"))
+
+     | Operation(e1, And, e2) -> (match eval e1 (env, sto) prog with
+                                 | BoolV(b), newsto -> if not b then (BoolV(false), newsto)
+                                                       else eval e2 (env, newsto) prog
+                                 | _ -> raise (TypeError "Wrong type for And"))
+
+     | Operation(e1, bop, e2) -> let v1, sto' = eval e1 (env, sto) prog
+                                 in let v2, sto'' = eval e2 (env, sto') prog
+                                 in (applyOp bop v1 v2, sto'')
+
+     | MethodCall(e1, id, el) -> 
+        (match eval e1 (env, sto) prog with
+        | Location(loc), sto' -> 
+            let Object(c_id, fl) = storefetch sto' loc
+            in let Method(_, _, arglis, locallis, sl, retexp) = getMethod id c_id prog
+            in let arg_value_list, sto'' = evallist el (env, sto') prog
+            in let env' = (zip (varnames arglis) arg_value_list)
+                         @(zipscalar (varnames locallis) NullV)
+                         @([("this", Location loc)])
+            in evalMethodCall sl retexp (env', sto'') prog
+
+        | _ -> raise (TypeError "Calling method on an id that is not a class"))
+
      | _ -> raise (NotImplemented "eval")
 
 and evallist (el:exp list) ((env,sto) as sigma:state) (prog:program)
           : stackvalue list * store = 
-  raise (NotImplemented "evallist")
+    match el with
+    | [] -> ([], sto)
+    | h::t -> let v1, sto' = eval h (env, sto) prog
+              in let vl, sto'' = evallist t (env, sto') prog
+              in (v1::vl, sto'')
 
 and evalMethodCall (stms:statement list) (retval:exp) (sigma:state)
                  (prog:program) : stackvalue * store =
-  raise (NotImplemented "evalMethodCall")
+  eval retval (execstmtlis stms sigma prog) prog
 
 and execstmt (s:statement) ((env,sto) as sigma:state) (prog:program) : state =
-  raise (NotImplemented "execstmt")
+  match s with
+  | Assignment(i, e) -> if binds i env then (
+                          let v1, sto' = eval e sigma prog
+                          in (asgn i v1 env, sto') 
+                        )
+                        else (
+                          let Location(loc) = (fetch "this" env)
+                          in let Object(id, env2) = storefetch sto loc
+                          in if binds i env2 then (
+                              let v1, sto' = eval e sigma prog
+                              in let obj = asgn_fld (Object(id, env2)) i v1
+                              in let sto'' = asgn_sto sto' loc obj
+                              in (env, sto'') 
+                            )
+                             else raise (TypeError("No variable with name: " ^ i))
+                        )
+
+  | If(e1, s1, s2) -> (match (eval e1 sigma prog) with
+                      | BoolV(b), sto' -> if b then execstmt s1 (env, sto') prog
+                                          else execstmt s2 (env, sto') prog
+                      | _ -> raise (TypeError "If statement type error"))
+
+  | Block(sl) -> execstmtlis sl sigma prog
+  | _ -> raise (NotImplemented "execstmt")
 
 and execstmtlis (sl:statement list) (sigma:state) (prog:program) : state =
-  raise (NotImplemented "execstmtlis")
+  match sl with
+  | [] -> sigma
+  | h::t -> let new_sigma = execstmt h sigma prog
+            in execstmtlis t new_sigma prog
 
 let run_with_args (Program(Class(cname,_,_,_) :: _) as prog)
                   (args:exp list) : string =

@@ -36,10 +36,11 @@ and progDesc n s = let s = n ^ ": " ^ s in
 let testRun_stu = testRun Student.run_with_args
 and testRun_sol = testRun Solution.run_with_args;;
 
-let sigma1 = [("x", IntV 4); ("y", StringV "abc"); ("z", BoolV true); ("mycar", Location 0)]
-let store1 = [Object("Main",[])]
+let sigma1 = [("x", IntV 4); ("y", StringV "abc"); ("z", BoolV true); ("mycar", Location 0); ("this", Location 1)]
+let sigma2 = [("x", IntV 4); ("y", StringV "abc"); ("z", BoolV true); ("mycar", Location 0); ("this", IntV 1)]
+let store1 = [Object("Main",[]); Object("Main",[("a", IntV 1)])]
 let fact = Program
-   [Class ("Main", "", [],
+   [Class ("Main", "", [(NonStatic, Var (IntType, "a"))],
      [Method (IntType, "main",
        [Var (IntType, "n")],
        [Var (IntType, "r")],
@@ -81,6 +82,8 @@ let rubric = [
 ; TESTFUN(1, applyOp, LessThan (IntV 1) (IntV 2))
 ; TESTFUN(1, applyOp, LessThan (IntV 2) (IntV 0))
 ; TESTFUN(1, applyOp, LessThan (IntV 1) (StringV "2"))
+; TESTFUN(1, applyOp, LessThan (StringV "1") (StringV "2"))
+; TESTFUN(1, applyOp, LessThanEq (IntV 1) (IntV 1))
 ; TESTFUN(1, applyOp, Equal (IntV 1) (IntV 2))
 ; TESTFUN(1, applyOp, Equal (StringV "1") (StringV "2"))
 ; TESTFUN(1, applyOp, Equal (StringV "abc") (StringV "abc"))
@@ -96,6 +99,11 @@ let rubric = [
 ; TESTFUN(1, applyOp, Equal (NullV) (StringV "1"))
 ; TESTFUN(1, applyOp, Equal (NullV) (NullV))
 ; TESTFUN(1, eval, (Id "x") (sigma1,store1) fact)
+; TESTFUN(1, eval, (Id "a") (sigma1,store1) fact)
+; TESTFUN(1, eval, (Id "c") (sigma1,store1) fact)
+; TESTFUN(1, eval, (This) (sigma2,store1) fact)
+; TESTFUN(1, eval, (NewId "Main") (sigma1,store1) fact)
+; TESTFUN(1, eval, (NewId "a") (sigma1,store1) fact)
 ; TESTFUN(1, eval, (Operation (Id "x", Plus, Id "y")) (sigma1,store1) fact)
 ; TESTFUN(1, eval, (Operation (Id "x", LessThan, Id "y")) (sigma1,store1) fact)
 ; TESTFUN(1, eval, (Operation (Id "z", And, False)) (sigma1,store1) fact)
