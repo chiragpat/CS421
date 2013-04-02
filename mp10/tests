@@ -1,4 +1,4 @@
-open Mp9common
+open Mp10common
 #include "run.ml"
 
 let rubric_version = "1.0"
@@ -7,7 +7,8 @@ let rubric_title = "CS421 Spring 2012 MP8"
 (**************************************************************************
  * You can add new test cases by adding new elements to the following lists
  * Format is:
- * TESTRUN(<weight>, <f_label>, <solution_f>, <student_f>, <program>)
+ * TESTRUN(<weight>, <f_label>, <solution_f>, <student_f>, <program>,
+ *   <prog_args>)
  * TESTFUN(<weight>, <f_name>, <args>)
  *
  * <args> should be a space-separated list NOT surrounded by parentheses,
@@ -26,15 +27,17 @@ let test f =
       TypeError m -> (None, Some (TypeError ""))
     | RuntimeError m -> (None, Some (RuntimeError ""))
 
-let testRun f s =
-  test (fun () -> f (parse s))
+let testRun f s (a:value list) =
+  test (fun () -> f (parse s) Solution.emptyEnv)
 and progDesc n s = let s = n ^ ": " ^ s in
   if String.length s > 135 then (String.sub s 0 60) ^ "..." else s
 
-let testRun_stu = testRun Student.reduce
-and testRun_sol = testRun Solution.reduce;;
 
-let rubric =
+let testRun_stu = testRun Student.eval
+and testRun_sol = testRun Solution.eval;;
+
+let rubric = [
+] @
 let t1 = "1 + 2"
 and t2 = "2 - 1"
 and t3 = "2 / 0"
@@ -44,29 +47,24 @@ and apnd = "[false] @ (tl [[]])"
 and lx = "let x = 5 in x"
 and f = "(fun a -> fun b -> a + b) 1 2"
 and add = "let add a b = a + b in add 2 1"
-and sum = "let rec sum ls = if ls = [] then 0 else (hd ls) + (sum (tl ls)) in sum [1; 2; 3]"
+and sum = "let rec sum ls = if ls = [] then 0 else (hd ls) + sum (tl ls) in sum [1; 2; 3]"
 and fact = "let rec fact n = if n = 0 then 1 else let r = fact (n - 1) in n * r in fact 5"
 and odd = "(fun n -> ((fun o -> fun e -> ((o o) e) n) (fun o -> fun e -> fun n -> if n = 0 then false else (((e o) e) (n - 1)))) (fun o -> fun e -> fun n -> if n = 0 then true else (((o o) e) (n - 1)))) 3"
 and map = "let rec map f = fun ls -> if (ls = []) then [] else ((f (hd ls)) :: ((map f) (tl ls))) in ((map (fun x -> (snd x, fst x))) [(1, 2); (3, 4); (5, 6)])"
-in
-List.map (fun (w,n,s) ->
-       TESTRUN(w,
-               progDesc n s,
-               testRun_sol,
-               testRun_stu,
-               s)) [
-2, "reduce-t1", t1;
-2, "reduce-t2", t2;
-2, "reduce-t3", t3;
-2, "reduce-t4", t4;
-3, "reduce-t5", t5;
-3, "reduce-append", apnd;
-3, "reduce-let", lx;
-5, "reduce-fun", f;
-5, "reduce-add", add;
-8, "reduce-sum", sum;
-10, "reduce-fact", fact;
-10, "reduce-oe", odd;
-10, "reduce-map", map
+in List.map (fun (w,n,s,a) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu, s, a)) [
+2, "eval-t1", t1, [];
+2, "eval-t2", t2, [];
+2, "eval-t3", t3, [];
+2, "eval-t4", t4, [];
+3, "eval-t5", t5, [];
+3, "eval-append", apnd, [];
+3, "eval-let", lx, [];
+5, "eval-fun", f, [];
+5, "eval-add", add, [];
+8, "eval-sum", sum, [];
+10, "eval-fact", fact, [];
+10, "eval-oe", odd, [];
+10, "eval-map", map, []
 ]
+
 and extra_rubric = []
