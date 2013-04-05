@@ -92,10 +92,10 @@ let rec applyUnop (bop:unary_operation) (v:value) : value =
 
   | _ -> failwith "not implemented"
 
-let rec fetch (id:id) (env:environment) : value =
+let rec fetch (id:id) (env:environment) : value option =
   match env with
-  | [] -> envError id
-  | (i, v)::t -> if i = id then v
+  | [] -> None
+  | (i, v)::t -> if i = id then Some v
                  else fetch id t
 
 let rec extend (id:id) (v:value) (env:environment) : environment =
@@ -106,7 +106,10 @@ let rec extend (id:id) (v:value) (env:environment) : environment =
 
 let rec eval (expr:exp) (env:environment) : exp =
   match expr with
-  | Var(id) -> fetch id env
+  | Var(id) -> (match (fetch id env) with
+                | Some(v) -> v
+                | None -> envError id) 
+
   
   | Fun(_, _) | Rec(_, _) -> Closure(expr, env)
 
