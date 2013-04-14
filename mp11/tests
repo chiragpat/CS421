@@ -1,0 +1,63 @@
+open Mp11common
+
+let rubric_version = "1.0"
+let rubric_title = "CS421 Spring 2013 MP11"
+
+let fstof3 = fun (x,_,_) -> x;;
+
+let box1s = Student.box (0.0,0.0) (1.0,0.0) (1.0,1.0);;
+let leaf1s = (box1s, 1.0, 1.0);;
+let t1s = Student.node box1s 1.0 1.0 leaf1s leaf1s Student.line;;
+let t2s = Student.node box1s 1.0 1.0 t1s leaf1s Student.line;;
+let p2s = fstof3 t2s;;
+let box1o = Solution.box (0.0,0.0) (1.0,0.0) (1.0,1.0);;
+let leaf1o = (box1o, 1.0, 1.0);;
+let t1o = Solution.node box1o 1.0 1.0 leaf1o leaf1o Solution.line;;
+let t2o = Solution.node box1o 1.0 1.0 t1o leaf1o Solution.line;;
+let p2o = fstof3 t2o;;
+   
+(* This example has the same output as the previous one
+   example above using "node" *)
+let t3s = Student.nodelist box1s 1.0 1.0 [leaf1s; leaf1s] Student.line;;
+let t4s = Student.nodelist box1s 1.0 1.0 [t3s; leaf1s] Student.line;;
+let p4s = fstof3 t4s;;
+let t3o = Solution.nodelist box1o 1.0 1.0 [leaf1o; leaf1o] Solution.line;;
+let t4o = Solution.nodelist box1o 1.0 1.0 [t3o; leaf1o] Solution.line;;
+let p4o = fstof3 t4o;;
+
+let t5s = Student.node box1s 1.0 1.0 leaf1s leaf1s Student.manline;;
+let t6s = Student.node box1s 1.0 1.0 t5s leaf1s Student.manline;;
+let p6s = fstof3 t6s;;
+let t5o = Solution.node box1o 1.0 1.0 leaf1o leaf1o Solution.manline;;
+let t6o = Solution.node box1o 1.0 1.0 t5o leaf1o Solution.manline;;
+let p6o = fstof3 t6o;;
+
+let t7s = Student.node box1s 1.0 1.0 leaf1s leaf1s (Student.shorten Student.manline);;
+let t8s = Student.node box1s 1.0 1.0 t7s leaf1s (Student.shorten Student.manline);;
+let p8s = fstof3 t8s;;
+let t7o = Solution.node box1o 1.0 1.0 leaf1o leaf1o (Solution.shorten Solution.manline);;
+let t8o = Solution.node box1o 1.0 1.0 t7o leaf1o (Solution.shorten Solution.manline);;
+let p8o = fstof3 t8o;;
+
+let t9s = Student.node box1s 1.0 1.0 leaf1s leaf1s (Student.shorten Student.line);;
+let t10s = Student.node box1s 1.0 1.0 t9s leaf1s (Student.shorten Student.line);;
+let p10s = fstof3 t10s;;
+let t9o = Solution.node box1o 1.0 1.0 leaf1o leaf1o (Solution.shorten Solution.line);;
+let t10o = Solution.node box1o 1.0 1.0 t9o leaf1o (Solution.shorten Solution.line);;
+let p10o = fstof3 t10o;;
+
+let p11s = Student.rotateAroundPoint (fstof3 t2s) 180.0 (1.0,1.0);;
+let p11o = Solution.rotateAroundPoint (fstof3 t2o) 180.0 (1.0,1.0);;
+
+let rubric = [
+   TESTRUN(3, "sierp2", Solution.sierpinski, Student.sierpinski, 2, (fun x -> x));
+   TESTRUN(3, "sierp3", Solution.sierpinski, Student.sierpinski, 3, (fun x -> x));
+   TESTRUN0(4, "tree2", p2s, p2o, (fun x -> x));
+   TESTRUN0(4, "tree4", p4s, p4o, (fun x -> x));
+   TESTRUN0(4, "tree6", p6s, p6o, (fun x -> x));
+   TESTRUN0(4, "tree8", p8s, p8o, (fun x -> x));
+   TESTRUN0(4, "tree10", p10s, p10o, (fun x -> x));
+   TESTRUN0(4, "tree11", p11s, p11o, (fun x -> x))
+]
+
+and extra_rubric = []
