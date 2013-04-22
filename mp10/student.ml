@@ -3,145 +3,152 @@ open Miniocamlast
 
 let rec applyOp (bop:binary_operation) (v1:value) (v2:value) : value =
   match bop with
-  | Equals -> (match v1, v2 with
-               | IntConst(i1), IntConst(i2) -> if i1 = i2 then True else False
-               | StrConst(s1), StrConst(s2) -> if s1 = s2 then True else False
-               | True, True -> True
-               | False, False -> True
-               | List(el1), List(el2) | Tuple(el1), Tuple(el2) -> if el1 = el2 then True else False
-               | _ -> False)
-  
-  | NotEquals -> (match (applyOp Equals v1 v2) with
-                 | True -> False
-                 | False -> True
-                 | _ -> failwith "its impossible to get hereE")
+     Semicolon -> failwith "not implemented"
 
-  | LessThan -> (match v1, v2 with
-                 | IntConst(i1), IntConst(i2) -> if i1 < i2 then True else False
-                 | _ -> raise (RuntimeError "Wrong types for LessThan"))
+   | Comma -> failwith "not implemented"
 
-  | GreaterThan -> (match v1, v2 with
-                    | IntConst(i1), IntConst(i2) -> if i1 > i2 then True else False
-                    | _ -> raise (RuntimeError "Wrong types for GreaterThan"))
+   | Equals -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> if i = i2 then True else False
+    | StrConst(s), StrConst(s2) -> if v1 = v2 then True else False
+    | True, True ->  True
+    | False, False -> True
+    | True, False -> False
+    | False, True -> False
+    | List(expl), List(expl2) -> if expl = expl2 then True else False
+    | Tuple(expl), Tuple(expl2) -> if expl = expl2 then True else False
+    | _ -> raise(RuntimeError "Can't compare these valuess"))
 
-  | And -> (match v1, v2 with
-            | True, True -> True
-            | True, False | False, True | False, False -> False
-            | _ -> raise (RuntimeError "Wrong types for And"))
+   | LessThan -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> exp_of_bool (i < i2)    
+      | _ -> raise(RuntimeError "Can't compare values"))
 
-  | Or -> (match v1, v2 with
-            | True, True | True, False | False, True -> True
-            | False, False -> False
-            | _ -> raise (RuntimeError "Wrong types for Or"))
+   | GreaterThan -> applyOp LessThan v2 v1
 
-  | Plus -> (match v1, v2 with
-             | IntConst(i1), IntConst(i2) -> IntConst(i1+i2)
-             | _ -> raise (RuntimeError "Wrong types for Plus"))
+   | NotEquals -> (match (applyOp Equals v1 v2) with
+      True -> False
+    | False -> True
+    | _ -> raise(RuntimeError "Can't compare values"))
 
-  | Minus -> (match v1, v2 with
-             | IntConst(i1), IntConst(i2) -> IntConst(i1-i2)
-             | _ -> raise (RuntimeError "Wrong types for Minus"))
+   | Assign -> failwith "not implemented"
+ 
+   | And -> (match v1, v2 with
+      True, True -> True
+    | True, False -> False
+    | False, True -> False
+    | False, False -> False
+    | _ -> raise(RuntimeError "not booleans!"))
 
-  | Mult -> (match v1, v2 with
-             | IntConst(i1), IntConst(i2) -> IntConst(i1*i2)
-             | _ -> raise (RuntimeError "Wrong types for Mult"))
+   | Or -> (match v1, v2 with
+      True, True -> True
+    | True, False -> True
+    | False, True -> True
+    | False, False -> False
+    | _ -> raise(RuntimeError "not booleans!"))
 
-  | Div -> (match v1, v2 with
-             | IntConst(i1), IntConst(i2) -> if i2 != 0 then IntConst(i1/i2)
-                                             else raise (RuntimeError "Division by zero")
-             | _ -> raise (RuntimeError "Wrong types for Div"))
+   | Plus -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> IntConst(i + i2)
+    | _ -> raise(RuntimeError "not ints!"))
 
-  | StringAppend -> (match v1, v2 with
-                     | StrConst(s1), StrConst(s2) -> StrConst(s1 ^ s2)
-                     | _ -> raise (RuntimeError "Wrong types for StringAppend"))
+   | Minus -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> IntConst(i - i2)
+    | _ -> raise(RuntimeError "not ints!"))
 
-  | ListAppend -> (match v1, v2 with
-                   | List(el1), List(el2) -> List(el1@el2)
-                   | _ -> raise (RuntimeError "Wrong types for ListAppend"))
+   | Div -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> if i2 = 0 then raise(RuntimeError "Can't divide by 0") 
+                                   else IntConst(i / i2)
+    | _ -> raise(RuntimeError "not ints!"))
 
-  | Cons -> (match v1, v2 with
-             | _, List(el) -> List(v1::el)
-             | _ -> raise (RuntimeError "Wrong types for Cons"))
+   | Mult -> (match v1, v2 with
+      IntConst(i), IntConst(i2) -> IntConst(i * i2)
+    | _ -> raise(RuntimeError "not ints!"))
 
-  | _ -> failwith "not implemented"
+   | StringAppend -> (match v1, v2 with
+      StrConst(s), StrConst(s2) -> StrConst(s ^ s2)
+    | _ -> raise(RuntimeError "can't append")) 
+
+   | ListAppend -> (match v1, v2 with
+      List(el), List(el2) -> List(el@el2)
+    | _ -> raise(RuntimeError "not lists"))
+
+   | Cons -> (match v2 with
+      List(l) -> List(v1::l)
+      | _ -> raise(RuntimeError "no."))
 
 let rec applyUnop (bop:unary_operation) (v:value) : value =
-  match bop with
-  | Not -> (match v with
-            | True -> False
-            | False -> True
-            | _ -> raise (RuntimeError "Wrong types for Not"))
+   match bop with
+     
+     Not -> (match v with
+        True -> False
+      | False -> True
+      | _ -> raise(RuntimeError "not."))
 
-  | Head -> (match v with
-             | List([]) -> raise (RuntimeError "Head of empty list.")
-             | List(h::t) -> h
-             | _ -> raise (RuntimeError "Wrong types for Head"))
+   | Head -> (match v with
+      List(h::t) -> h
+    | _ -> raise(RuntimeError "hd."))
 
-  | Tail -> (match v with
-             | List([]) -> raise (RuntimeError "Tail of empty list.")
-             | List(h::t) -> List(t)
-             | _ -> raise (RuntimeError "Wrong types for Tail"))
+   | Tail -> (match v with
+      List(h::t) -> List(t)
+    | _ -> raise(RuntimeError "tl."))
 
-  | Fst -> (match v with
-            | Tuple([v1; v2]) -> v1
-            | _ -> raise (RuntimeError "Bad argument to Fst"))
+   | Fst -> (match v with
+      Tuple([v1; v2]) -> v1
+    | _ -> raise(RuntimeError (string_of_expr v)))
 
-  | Snd -> (match v with
-            | Tuple([v1; v2]) -> v2
-            | _ -> raise (RuntimeError "Bad argument to Snd"))
+   | Snd -> (match v with
+      Tuple([v1; v2]) -> v2
+    | _ -> raise(RuntimeError "snd."))
 
-  | _ -> failwith "not implemented"
-
-let rec fetch (id:id) (env:environment) : value option =
-  match env with
-  | [] -> None
-  | (i, v)::t -> if i = id then Some v
-                 else fetch id t
+let rec fetch (id:id) (env:environment) : value =
+    match env with
+      [] -> envError id
+    | (s, v)::t -> if s = id then v else fetch id t
 
 let rec extend (id:id) (v:value) (env:environment) : environment =
   match env with
-  | [] -> [(id, v)]
-  | (i, v1)::t -> if i = id then (id, v)::t
-                  else (i, v1)::(extend id v t)
+     [] -> [(id, v)]@env
+   | (s, v1)::t -> if s = id then [(s, v)]@t else [(s, v1)]@extend id v t
 
 let rec eval (expr:exp) (env:environment) : exp =
-  match expr with
-  | Var(id) -> (match (fetch id env) with
-                | Some(v) -> v
-                | None -> envError id) 
+  match expr,env with 
+     (Operation(e1, bop, e2), env1) -> applyOp bop (eval e1 env1) (eval e2 env1)
 
-  
-  | Fun(_, _) | Rec(_, _) -> Closure(expr, env)
+   | (UnaryOperation(op, e1), env1) -> applyUnop op (eval e1 env1)
 
-  | Operation(e1, bop, e2) -> applyOp bop (eval e1 env) (eval e2 env)
+   | (Var(s), env1) -> fetch s env1
 
-  | UnaryOperation(uop, e) -> applyUnop uop (eval e env)
+   | (StrConst(s), env1) -> StrConst(s)
 
-  | List(el) -> List(evalList el env)
-  | Tuple(el) -> Tuple(evalList el env)
+   | (IntConst(i), env1) -> IntConst(i)
 
-  | If(e1, e2, e3) -> (match (eval e1 env) with
-                       | True -> eval e2 env
-                       | False -> eval e3 env
-                       | _ -> raise (TypeError "Wrong type in If"))
+   | (True, env1) -> True
 
-  | Let(a, e, e') -> let env' = extend a (eval e env) env
-                     in eval e' env'
+   | (False, env1) -> False
 
-  | App(e, e') -> (match (eval e env) with
-                   | Closure(Fun(a, e''), env') -> let v' = eval e' env
-                                                   in let env'' = extend a v' env'
-                                                   in eval e'' env''
+   | (List(expl), env1) -> List(evalList expl env1)
 
-                   | Closure(Rec(f, Fun(a, e'')), env') -> let v' = eval e' env
-                                                           in let env'' = extend f (Closure(Rec(f, Fun(a, e'')), env')) 
-                                                                                   (extend a v' env')
-                                                           in eval e'' env''
-                   | _ -> raise (TypeError "incorrect type for fun application "))
-  
-  | IntConst(_) | StrConst(_) | True | False -> expr 
+   | (Tuple(expl), env1) -> Tuple(evalList expl env1)
 
-and evalList (el:exp list) (env:environment) : exp list = 
-  match el with
-  | [] -> []
-  | h::t -> (eval h env)::(evalList t env)
+   | (If(e1, e2, e3), env1) -> (match eval e1 env1 with
+      True -> (eval e2 env1)
+    | False -> (eval e3 env1)
+    | _ -> raise(RuntimeError "not boolean"))
+
+   | (App(e1, e2), env1) -> (let v1 = (eval e2 env1) in
+      match (eval e1 env1) with
+         Closure(Fun(a, e3), env2) -> eval e3 (extend a v1 env2)
+       | Closure(Rec(f, Fun(a,e3)), env2) -> eval e3 (extend f (eval e1 env1) (extend a v1 env2))
+       | _ -> raise(RuntimeError "not a function"))
+
+   | (Let(s, e1, e2), env1) -> (let v1 = (eval e1 env1) in
+      eval e2 (extend s v1 env1)
+      )
+
+   | (Fun(s, e1), env1) -> Closure(Fun(s,e1), env1)
+
+   | (Rec(s, e1), env1) -> Closure(Rec(s,e1), env1)
+   
+   | Closure(e1, env), env1 -> raise(RuntimeError "no closures!")
+
+and evalList expl env = match expl with
+   [] -> []
+ | h::t -> [eval h env]@evalList t env

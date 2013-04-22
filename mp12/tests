@@ -1,0 +1,34 @@
+open Solution
+#include "run.ml"
+#include "tests.ml"
+
+let rubric_version = "1.0"
+let rubric_title = "CS421 Spring 2013 MP12"
+
+(**************************************************************************
+ * You can add new test cases by adding new elements to the following lists
+ * Format is:
+ * TESTRUN(<weight>, <f_label>, <solution_f>, <student_f>, <program>,
+ *   <prog_args>)
+ * TESTFUN(<weight>, <f_name>, <args>)
+ *
+ * <args> should be a space-separated list NOT surrounded by parentheses,
+ *   and is simply appended to the end of <f_name>
+ * <prog_args> should be of type (Minijavaast.exp list).
+ **************************************************************************)
+
+(* Test cases should go in this list. 
+ * The first element of the pair is the weight of the case,
+ * and the second is the string to be given to the parser.
+ *)
+
+let test f = f ()
+
+let testRun f s (a:typeterm list) = test (fun () -> f (parse s) empty_te) and progDesc n s = let s = n ^ ": " ^ s in if String.length s > 135 then (String.sub s 0 60) ^ "..." else s;;
+
+let testRun_stu = testRun Student.tcheck
+and testRun_sol = testRun Solution.tcheck;;
+
+let rubric = (let programs = [ident ; ident2 ; ident3 ; let1 ; let2 ; let3 ; let4] and args = [2,"ident";2,"ident2";2,"ident3";5,"let1";5,"let2";5,"let3";5,"let4"] in List.map2 (fun s -> fun (w,n) -> TESTRUN(w, progDesc n s, testRun_sol, testRun_stu, s, [])) programs args)
+
+and extra_rubric = [];;
